@@ -45,7 +45,7 @@ class webprofiler
                 // kernel
                 $totalMemory = memory_get_peak_usage();
                 $scriptEndTime = microtime();
-                $version = 0.2;
+                $version = $container->getKernel()->getVersion();
                 
                 // route
                 $httpStatus = $response->getStatus();

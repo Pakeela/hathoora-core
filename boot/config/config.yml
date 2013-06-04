@@ -5,16 +5,16 @@
 #    # when enabled adds 'translation' service
 #    enabled: 1 
 
-#logger:
-#    profiling: 1
-#    logging: 
-#        enabled: 1
-#        level: DEBUG
-#    webprofiler: 
-#        enabled: 1
-#        content_type: 'text/html'
-#        skipOnPostParam: 'pajax'
-#        skipOnGetParam: 'pajax'
+logger:
+    profiling: 1
+    logging: 
+        enabled: 1
+        level: DEBUG
+    webprofiler: 
+        enabled: 1
+        content_type: 'text/html'
+        skipOnPostParam: 'pajax'
+        skipOnGetParam: 'pajax'
 
 #assets:
 #    version: v20130428.2

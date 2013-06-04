@@ -23,6 +23,14 @@ class container
     }
     
     /**
+     * Returns instance of \hathoora\kernel
+     */
+    final public static function getKernel()
+    {
+        return registry::get('hathooraKernel');
+    }    
+    
+    /**
      * Returns instance of \hathoora\observer
      */
     final public static function getObserver()

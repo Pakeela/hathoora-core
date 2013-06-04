@@ -1,13 +1,8 @@
+# For more information please visit https://github.com/attozk/hathoora/wiki/Configuration#define-applications-or-websites-being-supported
+
+# Define application or website that are being supported.
 app:
-    # multiple apps
-    #app2: 
- #       pattern: 'app2.com(|/)'
- #       directory: 'app2'    
-    
     # Catch all, user sites
     site: 
         default: true
-        #dispatcher: 
-        #    class: appDispatcher
-        #    method: dispatch
-        directory: 'example.com'    
+        directory: sample

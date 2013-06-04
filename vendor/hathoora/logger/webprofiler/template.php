@@ -6,101 +6,9 @@
     );
 ?>
 
-<script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>')</script>
-<style type="text/css">
-    #hathoora_debug { font-size:12px; font-family:arial; position: fixed; bottom: 0%; right: 0px; background: #D5D6D2;  width:100%; height: 30px; border-top:1px solid #BCBCBC; z-index:1000; vertical-align:middle; line-height:16px; }
-    #hathoora_debug > div { border-right:1px solid #BCBCBC; float:left; padding-left:9px; padding-right:8px; height:30px; padding-top:7px; }
-    #hathoora_debug div.hathoora_logo { padding-left:5px; }
-    #hathoora_debug div.hathoora_logo img { vertical-align:top !important; }
-    #hathoora_debug div.hathoora_summary { float:right; border-right:none; border-left:1px solid #BCBCBC; padding-top:0;  }
-    
-    /* common properties for toggle sections */
-    #hathoora_debug div.hathoora_opened { background:#CCDAB0; border-top:1px solid #CCDAB0; position:relative; top:-1px; }
-    #hathoora_debug div.hathoora_section_toggle { cursor:pointer; }
-    #hathoora_debug div.hathoora_section_table_wrapper { display:none;  background:#CCDAB0; height:280px;  padding:15px 0 15px 0; left:0px; bottom:31px; position:fixed; width:100%; border-top:1px solid #BCBCBC;  }
-    #hathoora_debug div.hathoora_section_table_wrapper .hathoora_section_table { max-height:240px; overflow:auto; clear:both; }
-    #hathoora_debug div.hathoora_section_table_wrapper table { width:98%; border-collapse:collapse; font-size:12px; border:1px solid #BCBCBC; }
-    #hathoora_debug div.hathoora_section_table_wrapper table thead th { background:#D5D6D2; text-align:left; padding-left:10px; border-right:1px solid #BCBCBC; border-bottom:1px solid #BCBCBC;  }    
-    #hathoora_debug div.hathoora_section_table_wrapper table tbody td { padding-left: 10px; border-right:1px solid #BCBCBC; border-bottom:1px solid #BCBCBC;   }
-    #hathoora_debug div.hathoora_section_table_wrapper table tbody td.n { padding:0 10px 0 0; text-align:right; }
-    #hathoora_debug div.hathoora_section_table_wrapper table tr.odd { background:#F4F4F4; }
-    #hathoora_debug div.hathoora_section_table_wrapper table tbody tr.even { background:#EBEBEB; }
-    /* common properties for tabs */
-    #hathoora_debug div.hathoora_section_tabs { padding-left:15px; }
-    #hathoora_debug div.hathoora_section_tabs .hathoora_section_tab { float:left; padding:5px 8px; background:#609440; margin-right:2px; color:#fff; border:1px solid #617566; border-bottom:none; cursor:pointer; }
-    #hathoora_debug div.hathoora_section_tabs .hathoora_section_tab_selected {  color:#609440; background:#fff; border:1px solid #BCBCBC; border-bottom:none; } 
-    #hathoora_debug div.hathoora_section_tabs .hathoora_section_tab_content { display:block;  max-height:240px; overflow:auto; clear:both; background:#fff; border:1px solid #BCBCBC; width:97%; padding:10px; border-top:none; }
-    
-    
-    /* config */
-    #hathoora_debug div.hathoora_config .hathoora_section_table { max-height:280px; overflow:auto; }
-    #hathoora_debug div.hathoora_config table thead th.hathoora_config_key { width:20%; }
-    #hathoora_debug div.hathoora_config table thead th.hathoora_config_value { width:80%; }
-    
-    /*  log */
-    #hathoora_debug div.hathoora_log table thead th.hathoora_log_num { width:2%; }
-    #hathoora_debug div.hathoora_log table thead th.hathoora_log_time { width:7%; }
-    #hathoora_debug div.hathoora_log table thead th.hathoora_log_level { width:8%; }
-    #hathoora_debug div.hathoora_log table thead th.hathoora_log_memory { width:7%; }
-    #hathoora_debug div.hathoora_log table thead th.hathoora_log_message { width:77%; }
-    
-    /* profiling */
-    #hathoora_debug div.hathoora_profiling table thead th.hathoora_profile_num { width:2%; }
-    #hathoora_debug div.hathoora_profiling table thead th.hathoora_profile_time { width:3%; }
-    #hathoora_debug div.hathoora_profiling table thead th.hathoora_profile_name { width:7%; }
-    #hathoora_debug div.hathoora_profiling table thead th.hathoora_profile_message { padding-right:10px; }
-    #hathoora_debug div.hathoora_profiling table thead th.hathoora_profile_took { width:7%; }
-    #hathoora_debug div.hathoora_profiling table tbody td span { color:#BCBCBC; font-size:11px; }
-    #hathoora_debug div.hathoora_profiling  .hathoora_profile_error { padding:2px 4px; border:1px solid #FF0000; color:#990000; background:#FFE8E8;  }
-
-</style>
-<script type="text/javascript">
-    // hide all tab contens
-    function hathooraHideAllTabs()
-    {
-        $('#hathoora_debug .hathoora_section_tab_content').hide();
-        $('#hathoora_debug .hathoora_section_tab').removeClass('hathoora_section_tab_selected');
-    }
-    
-    $(document).ready(function () 
-    {
-        hathooraHideAllTabs();
-        
-        // section opener
-        $('#hathoora_debug div.hathoora_section_toggle').click(function()
-        {
-            section = $(this).parent().attr('section');
-            if (!$('#hathoora_debug div.hathoora_' + section + ' div.hathoora_section_table_wrapper').is(":visible"))
-            {
-                // hide all first
-                $('#hathoora_debug div.hathoora_section_table_wrapper').hide('fast').parents('div[section]').removeClass('hathoora_opened');
-                // then show this one
-                $('#hathoora_debug div.hathoora_' + section + ' div.hathoora_section_table_wrapper').show('fast').parents('div.hathoora_' + section).addClass('hathoora_opened');
-                
-                // need to show first tab content?
-                if ($('#hathoora_debug div.hathoora_' + section + ' div.hathoora_section_tabs .hathoora_section_tab').length)
-                {
-                    $($('#hathoora_debug div.hathoora_' + section + ' div.hathoora_section_tabs .hathoora_section_tab')[0]).trigger('click');
-                }
-            }
-            else
-            {
-                $('#hathoora_debug div.hathoora_' + section + ' div.hathoora_section_table_wrapper').hide('fast').parents('div.hathoora_' + section).removeClass('hathoora_opened');
-            }
-        });
-        
-        // tabs
-        $('#hathoora_debug div.hathoora_section_tabs .hathoora_section_tab').click(function()
-        {
-            section = $(this).parents('div[section]').attr('section');
-            tab = $(this).attr('tab');
-            hathooraHideAllTabs();
-            $(this).addClass('hathoora_section_tab_selected');
-            $('#hathoora_debug div.hathoora_' + section + ' .hathoora_section_tab_content[tab="' + tab +'"]').show();
-        });
-    });
-</script>
-
+<link rel="stylesheet" type="text/css" href="/media/_hathoora/webprofiler.css?<?php echo $version; ?>" media="screen" />
+<script>document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>');</script>
+<script type="text/javascript" src="/media/_hathoora/webprofiler.js?<?php echo $version; ?>"></script>
 
 <div id="hathoora_debug">
     <div class="hathoora_summary">
@@ -109,7 +17,7 @@
     </div>
     
     <div class="hathoora_logo">
-        <img src="http://cdn1.iconfinder.com/data/icons/strabo/24/hammer.png" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
+        <img src="/media/_hathoora/hathoora_logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
         <?php echo HATHOORA_ENV; ?>
     </div>
     
@@ -160,7 +68,7 @@
                                         echo '
                                         <tr class="'. $class .'">
                                             <td>'. $c . '.' . $k .'</td>
-                                            <td>'. (is_array($v) || is_object($v) ? json_encode($v) : $v) .'</td>
+                                            <td>'. (is_array($v) || is_object($v) ? '<pre>'. print_r($v, true) . '</pre>' : $v) .'</td>
                                         </tr>';
                                     }
                                 }
@@ -226,7 +134,7 @@
                             {
                                 echo '
                                 <tr>
-                                    <td colspan="4">Nothing is being logged, make sure you have defined "logger.logging.enabled" and "logger.logging.level" in configuration files properly.</td>
+                                    <td colspan="5">Nothing is being logged, make sure you have defined "logger.logging.enabled" and "logger.logging.level" in configuration files properly.</td>
                                 </tr>';                    
                             }
                         ?>
@@ -426,7 +334,10 @@
                         }                    
                     }
                 }
-                
+                else
+                {
+                    echo 'No profiling information is available.';
+                }
             ?>
         </div>
     </div>

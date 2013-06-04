@@ -4,7 +4,7 @@ define('HATHOORA_ROOTPATH', realpath(__DIR__ . '/..') .'/');
 require_once HATHOORA_ROOTPATH .'/boot/autoload.php';
 
 use hathoora\kernel;
-$env = 'prod';
+$env = 'dev';
 
 $kernel = new kernel($env);
 
