@@ -1,0 +1,8 @@
+# configuration file for 'prod' environment
+logger:
+    profiling: 0
+    logging: 
+        enabled: 0
+        level: ERROR
+    webprofiler: 
+        enabled: 0

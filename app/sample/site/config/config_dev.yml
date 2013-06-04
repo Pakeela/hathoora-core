@@ -1,0 +1,23 @@
+# For more information please visit https://github.com/attozk/hathoora/wiki/Configuration#application-configuration
+
+# Import config which will be overwritten
+imports:
+    - { resource: config_prod.yml }
+
+    # configuration file for 'dev' environment
+logger:
+    # Enable profilling (for things like sql, cache, render time etc..)
+    profiling: 1
+    logging: 
+        enabled: 1
+        # define logging level: DEBUG, INFO, WARNING, ERROR, FATAL
+        level: DEBUG
+    webprofiler: 
+        # set to 1 to enable web profiler
+        enabled: 1
+        # enable webprofiler for responses whose content_type matches
+        content_type: 'text/html'
+        # skip webprofiller for responses when POST has following param
+        skipOnPostParam: 'pajax'
+        # skip webprofiller for responses when GET has following param
+        skipOnGetParam: 'pajax'
