@@ -1,0 +1,13 @@
+app:
+    # multiple apps
+    #app2: 
+        pattern: 'app2.com(|/)'
+        directory: 'app2'    
+    
+    # Catch all, user sites
+    site: 
+        default: true
+        #dispatcher: 
+        #    class: appDispatcher
+        #    method: dispatch
+        directory: 'site'    
