@@ -18,6 +18,6 @@ logger:
         # enable webprofiler for responses whose content_type matches
         content_type: 'text/html'
         # skip webprofiller for responses when POST has following param
-        skipOnPostParam: 'pajax'
+        skip_on_post_params: ['pajax']
         # skip webprofiller for responses when GET has following param
-        skipOnGetParam: 'pajax'
+        skip_on_get_params: ['pajax']

@@ -16,12 +16,12 @@ class defaultController extends controller
      */
     public function index()
     {
-        #$arrTplParams = array(
-        #    'bodyClass' => 'homepage',
-        #);
-        #$template = $this->template('default/index.tpl.php', $arrTplParams);
-        #$response = $this->response($template);
+        $arrTplParams = array(
+            'bodyClass' => 'homepage',
+        );
+        $template = $this->template('index.tpl.php', $arrTplParams);
+        $response = $this->response($template);
         
-        #return $response;
+        return $response;
     }    
 }

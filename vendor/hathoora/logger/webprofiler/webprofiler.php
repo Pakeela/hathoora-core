@@ -20,14 +20,30 @@ class webprofiler
         // request
         $request = $container->getRequest();
        
-        // skip webprofiler when webprofiler.skip.post.param is true
-        if ($container->getConfig('logger.webprofiler.skipOnPostParam') && $request->postParam($container->getConfig('logger.webprofiler.skip_on_post_param')))
-            return;
+        // skip webprofiler for specified POST params
+        if ($request->postParam() && ($arrSkipParams = $container->getConfig('logger.webprofiler.skip_on_post_params')))
+        {
+            foreach ($arrSkipParams as $param)
+            {
+                if ($request->postParam($param))
+                {
+                    return;
+                }
+            }
+        }
         
-        // skip webprofiler when webprofiler.skip.post.param is true
-        if ($container->getConfig('logger.webprofiler.skipOnPostParam') && $request->getParam($container->getConfig('logger.webprofiler.skip_on_get_param')))
-            return;
-
+        // skip webprofiler for specified GET params
+        if ($request->getParam() && ($arrSkipParams = $container->getConfig('logger.webprofiler.skip_on_get_params')))
+        {
+            foreach ($arrSkipParams as $param)
+            {
+                if ($request->getParam($param))
+                {
+                    return;
+                }
+            }
+        }
+        
         $response = $container->getResponse();
         $contentType = $response->getHeader('Content-Type');
         

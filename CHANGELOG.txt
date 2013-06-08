@@ -1,6 +1,38 @@
-* Configuration Changes:
-** Renamed - logger.webprofiler.skipOnGetParam renamed to logger.webprofiler.skip_on_get_params
-** Renamed - logger.webprofiler.skipOnPostParam renamed to logger.webprofiler.skip_on_post_params
-** New Functionality - logger.webprofiler.skip_on_get_params supports multiple GET params
-** New Functionality - logger.webprofiler.skip_on_post_params supports multiple POST params
+** Change - logger.webprofiler.skipOnGetParam renamed to logger.webprofiler.skip_on_get_params
+** Change - logger.webprofiler.skipOnPostParam renamed to logger.webprofiler.skip_on_post_params
+* New - logger.webprofiler.skip_on_get_params supports multiple GET params
+** New - logger.webprofiler.skip_on_post_params supports multiple POST params
+** Change - template.engine.class renamed to template.engine.name
+** Change - Configurations for a specific template engine are now under template level e.g. template.Smarty.caching
+** New - Master-Slave DB support
+** New - Smarty template added
+*** In order to use Smarty template, follow these steps:
+    1. Download the latest version from http://www.smarty.net/download
+    Once downloaded, extract the contents of smarty-version/libs/* vendor/Smarty, such that the path
+    becomes `vendor/Smarty/Smarty.class.php`
+    Then creaste a new ` vendor/Smarty/Smarty.php`
+    
+    
+    <?php
+        namespace Smarty;
 
+        require_once('Smarty.class.php');
+
+        /**
+         * Wrapper for SplClassLoader namespacing
+         */
+        class Smarty extends \Smarty
+        {
+
+
+        }
+
+    2. Add a new namespace in `boot/autoload.php` 
+    
+        $arrNameSpaces = array(
+            'hathoora' => __DIR__ .'/../vendor',
+            'Smarty' => __DIR__ .'/../vendor',
+            'app' => __DIR__ .'/../',
+        );
+        
+    3. Hathoora comes with templateSmarty class which uses above steps.

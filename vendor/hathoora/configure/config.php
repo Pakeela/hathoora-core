@@ -103,6 +103,17 @@ class config implements configInterface
     }
     
     /**
+     * has config
+     *
+     * @param string $var variable name
+     * @return bool
+     */
+    public static function has($key)
+    {
+        return registry::hasConfig($key);
+    }
+        
+    /**
      * Get all configs
      */
     public static function getAll()

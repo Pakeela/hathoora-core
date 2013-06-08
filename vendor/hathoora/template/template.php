@@ -54,23 +54,34 @@ class template
             );
         }
         
-        $engineClass = ucwords(strtolower(config::get('template.engine.class')));
+        if (!config::has('template.engine.name'))
+            $engine = 'Stuob';
+        else 
+            $engine = config::get('template.engine.name');
+        
+        $thClass =  '\hathoora\template\template'. $engine;
+        
+        // has custom template class
+        if (config::has('template.engine.class'))
+        {
+            $thClass =  config::get('template.engine.class');
+        }
+        
+        // assign template and tpl dir
         $this->template = $template;
         $this->template_dir = HATHOORA_APP_PATH . '/view/';
         $arrTemplateConfig  = array(
             'template_dir' => $this->template_dir
         );
         
-        
         // pass params to config
-        $arrConfig = config::get('template.engine.' . $engineClass);
+        $arrConfig = config::get('template.' . $engine);
         if (is_array($arrConfig))
         {
             // allow overwite from $arrConfig
             $arrTemplateConfig = $arrConfig + $arrTemplateConfig;
         }
-        
-        $thClass =  '\hathoora\template\template'. $engineClass;
+
         $this->factory = new $thClass($arrTemplateConfig);
         
         // assign local and variable globals

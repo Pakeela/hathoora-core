@@ -9,7 +9,7 @@ use hathoora\container,
  * Smarty template
  *
  */
-class templateSmarty extends \Smarty implements templateInterface
+class templateSmarty extends \Smarty\Smarty implements templateInterface
 {
     /**
      * constructor

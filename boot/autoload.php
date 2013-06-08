@@ -5,6 +5,7 @@ require_once(__DIR__ . '/../vendor/hathoora/autoloader.php');
 // define name spaces here
 $arrNameSpaces = array(
     'hathoora' => __DIR__ .'/../vendor',
+    'Smarty' => __DIR__ .'/../vendor',
     'app' => __DIR__ .'/../',
 );
 

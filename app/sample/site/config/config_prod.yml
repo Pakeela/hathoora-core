@@ -6,3 +6,31 @@ logger:
         level: ERROR
     webprofiler: 
         enabled: 0
+database:
+    default: 
+        db1:
+            dsn: mysql://user@host:3306/dbname
+            role: master
+            readonly: true
+            weight: 1
+        db2:
+            dsn: mysql://user@host:3306/dbname
+            role: slave
+        db3:
+            dsn: mysql://user@host:3306/dbname
+            readonly: true
+            role: slave
+            weight: 3
+                
+    db2: mysql://user@host:3306/dbname
+
+template:
+    engine:
+        name: Smarty
+    Smarty:
+        caching: 0
+        cache_lifetime: 0
+        cache_dir: /tmp/smarty_template_cache
+        compile_dir: /tmp/smarty_templates_c
+        force_compile: 0
+        compile_check: 1
