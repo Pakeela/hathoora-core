@@ -1,0 +1,6 @@
+* Configuration Changes:
+** Renamed - logger.webprofiler.skipOnGetParam renamed to logger.webprofiler.skip_on_get_params
+** Renamed - logger.webprofiler.skipOnPostParam renamed to logger.webprofiler.skip_on_post_params
+** New Functionality - logger.webprofiler.skip_on_get_params supports multiple GET params
+** New Functionality - logger.webprofiler.skip_on_post_params supports multiple POST params
+
