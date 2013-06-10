@@ -16,6 +16,20 @@ class defaultController extends controller
      */
     public function index()
     {
+        #$db2 = \hathoora\database\dbAdapter::getConnection('db2');
+        #printr($db2->fetchArray('SELECT NOW();'));
+        
+        $default = \hathoora\database\dbAdapter::getConnection('default');
+        try
+        {
+            $r = $default->server('slave:name')->fetchArray('SELECT NOW();');
+            printr($r);
+        }
+        catch (\Exception $e)
+        {
+        }
+        
+        
         $arrTplParams = array(
             'bodyClass' => 'homepage',
         );

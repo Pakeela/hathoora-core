@@ -12,7 +12,7 @@ class dbMysqli extends \Mysqli implements dbInterface
      * @return mysqli object
      * @throws exception when unable to connect
      */
-     public function __construct($host = NULL, $username = NULL, $passwd = NULL, $dbname = NULL, $port = NULL, $socket = NULL)
+     public function __construct($host = NULL, $username = NULL, $passwd = NULL, $dbname = NULL, $port = NULL, $socket = NULL, $options = NULL)
      {
         $this->host = $host;
         $this->user = $username;
@@ -25,9 +25,19 @@ class dbMysqli extends \Mysqli implements dbInterface
         @parent::__construct($this->host, $this->user, $this->password, $this->schema, $this->port, $socket = NULL);
         if ($this->connect_error)
             throw new \Exception('Connect Error (' . $this->connect_errno . ') ' . $this->connect_error); 
+        
+        // any options to set
+        if (is_array($options))
+        {
+            foreach($options as $option => $value)
+            {
+                if (defined($option))
+                    parent::options(constant($option), $value);
+            }
+        }
             
         return $this;
-     }
+    }
     
     /**
      * Disconnect dbs
