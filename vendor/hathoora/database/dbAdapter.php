@@ -72,6 +72,7 @@ class dbAdapter
                             $role = !empty($arrServer['role']) ? strtolower($arrServer['role']) : 'master';
                             $dsn = !empty($arrServer['dsn']) ? strtolower($arrServer['dsn']) : null;
                             $options = !empty($arrServer['options']) ? $arrServer['options'] : null;
+                            $onConnect = isset($arrServer['on_connect']) ? $arrServer['on_connect'] : null;
                             
                             // read only master are used only for reads after slaves are exhausted
                             $readOnly = ($role == 'master' && isset($arrServer['read_only'])) ? $arrServer['read_only'] : false;
@@ -86,18 +87,26 @@ class dbAdapter
                             if ($dsn)
                             {
                                 $uniqueDsnName = $dsn;
-                                if ($options)
+                                if (is_array($options))
                                 {
                                     $md5Options = @md5(serialize($options));
                                     $uniqueDsnName .= ':' . $md5Options;
                                 }
+                                if (is_array($onConnect))
+                                {
+                                    $md5OnConnect = @md5(serialize($onConnect));
+                                    $uniqueDsnName .= ':' . $md5OnConnect;
+                                }                                
                                 
                                 if (empty($arrDsns[$uniqueDsnName]))
                                 {
                                     $arrDsns[$uniqueDsnName] = array();
                                     $arrDsns[$uniqueDsnName]['name'] = $uniqueDsnName;
                                     $arrDsns[$uniqueDsnName]['dsn'] = $dsn;
-                                    $arrDsns[$uniqueDsnName]['options'] = $options;
+                                    if ($options)
+                                        $arrDsns[$uniqueDsnName]['options'] = $options;
+                                    if ($onConnect)
+                                        $arrDsns[$uniqueDsnName]['on_connect'] = $onConnect;
                                     $arrDsns[$uniqueDsnName]['status'] = 'not connected';
                                     
                                     if (!preg_match('/^(\w+):\/\/(\w+):(|\w+)@(.+?):(\d+)\/(.+?)$/', $dsn))
@@ -108,7 +117,7 @@ class dbAdapter
                                         logger::log(logger::LEVEL_ERROR, $error);
                                     }                                    
                                 }
-                                $arrDsns[$uniqueDsnName]['pools'][$poolName .':'. $nickName] = 1;                            
+                                $arrDsns[$uniqueDsnName]['pools'][$poolName .':'. $nickName] = $weight . ':' . $nickName;                            
                                 
                                 $roleType = 'read';
                                 if ($role == 'master')
@@ -125,7 +134,9 @@ class dbAdapter
                                     
                                 $arrPool['servers'][$roleType][$weight . ':' . $nickName] = $arrServer;
                                 $arrPool['servers'][$roleType][$weight . ':' . $nickName]['name'] = $nickName;
-                                
+                                $arrPool['servers'][$roleType][$weight . ':' . $nickName]['uniqueDsnName'] = $uniqueDsnName;                                
+                                $arrPool['servers_role_weight_mapping'][$nickName][$role] = $weight . ':' . $nickName;
+                                                                                
                                 // allow read master can be used for reads but as last resort (once all slaves and read only master fail)
                                 if ($role == 'master' && $allowRead)
                                 {
@@ -133,6 +144,8 @@ class dbAdapter
                                     $weight = '0.0' . $weight;
                                     $arrPool['servers'][$roleType][$weight . ':' . $nickName] = $arrServer;
                                     $arrPool['servers'][$roleType][$weight . ':' . $nickName]['name'] = $nickName;                            
+                                    $arrPool['servers'][$roleType][$weight . ':' . $nickName]['uniqueDsnName'] = $uniqueDsnName;
+                                    $arrPool['servers_role_weight_mapping'][$nickName][$role] = $weight . ':' . $nickName;                                    
                                 }
                             }
                         }
@@ -165,7 +178,7 @@ class dbAdapter
                             logger::log(logger::LEVEL_ERROR, $error);
                         }
                     }
-                    $arrDsns[$uniqueDsnName]['pools'][$poolName .':'] = 1;
+                    $arrDsns[$uniqueDsnName]['pools'][$poolName .':'] = '10:';
 
                     // read and write servers are the same in this case
                     $arrPool['servers']['write']['10:'] = array('dsn' => $dsn);

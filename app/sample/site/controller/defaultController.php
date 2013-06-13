@@ -22,8 +22,17 @@ class defaultController extends controller
         $default = \hathoora\database\dbAdapter::getConnection('default');
         try
         {
-            $r = $default->server('slave:name')->fetchArray('SELECT NOW();');
-            printr($r);
+            $r = $default->fetchArray('SELECT NOW();');
+            #$r = $default->server('master:dbMaster1')->fetchArray('SELECT NOW();');
+            #$r = $default->server('slave:dbSlave1')->fetchArray('INSERT IGNORE NOW();');
+            #printr($r);
+            $r = $default->server('slave:dbSlave1')->fetchArray('SELECT NOW();');
+            #printr($r);            
+            $r = $default->comment('hello world')->fetchArray('SELECT NOW();');
+            $r = $default->server('master:dbMaster1')->fetchArray('SELECT NOW();');
+            $r = $default->server('last')->fetchArray('SELECT NOW();');
+            $r = $default->fetchArray('SELECT NOW();');
+            #printr($r);            
         }
         catch (\Exception $e)
         {

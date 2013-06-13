@@ -59,6 +59,16 @@ class db
     protected $error;
     
     /**
+     * A comment for query for debugging..
+     */
+    protected $comment;
+    
+    /**
+     * last dsn used
+     */
+    protected $lastDsnUsed;
+    
+    /**
      * User can specify which server to use on per usage basis
      */
     protected $userSpecifiedDsn;
@@ -85,14 +95,12 @@ class db
         $this->poolName = $poolName; 
         $this->dsnName = $dsnName;
         
-        $this->profiling = config::get('logger.profiling');
-        
         return $this;
     }
     
     ##############################################################
     ##
-    ##   DSN stuff
+    ##   DSN/Debug stuff
     ## 
     /**
      * From the pool, get a dsn to connect to based on read/write logic & weights
@@ -105,37 +113,59 @@ class db
         $conn = null;
         $dbDsnName = null;
         $currentPoolDsnTypeIdentifier = $this->poolName .':' . $type;
+        $userSpecifiedDsn = $this->userSpecifiedDsn;
         
-        if (isset($arrPoolCurrentDsnForType[$currentPoolDsnTypeIdentifier]))
+        if (is_array($userSpecifiedDsn))
         {
-            $arr = $arrPoolCurrentDsnForType[$currentPoolDsnTypeIdentifier];
+            $arrAvailableDsn = $userSpecifiedDsn;
         }
-        else if (isset(dbAdapter::$arrPools[$this->poolName]) && ($arrPool = dbAdapter::$arrPools[$this->poolName]))
+        // from static var
+        else if (isset($arrPoolCurrentDsnForType[$currentPoolDsnTypeIdentifier]))
+        {
+            $arrAvailableDsn = $arrPoolCurrentDsnForType[$currentPoolDsnTypeIdentifier];
+        }
+        // figure out
+        else if (isset(dbAdapter::$arrPools[$this->poolName]))
         {
             $type = strtolower($type);
-            if (isset($arrPool['servers']))
-            {
-                $arrTypeServers = $arrPool['servers'][$type];
-                $arr = $this->getAvailableDsn($arrTypeServers);
-                
-                $arrPoolCurrentDsnForType[$currentPoolDsnTypeIdentifier] = $arr;
-            }
+            $arrAvailableDsn = $this->getAvailableDsn($type);
+            $arrPoolCurrentDsnForType[$currentPoolDsnTypeIdentifier] = $arrAvailableDsn;
         }
         
-        if (is_array($arr))
+        if (is_array($arrAvailableDsn))
         {
-            $uniqueDsnName = isset($arr['uniqueDsnName']) ? $arr['uniqueDsnName'] : null;
-            $dbDsnName = isset($arr['name']) ? $arr['name'] : null;
+            $uniqueDsnName = isset($arrAvailableDsn['uniqueDsnName']) ? $arrAvailableDsn['uniqueDsnName'] : null;
+            $dbDsnName = isset($arrAvailableDsn['name']) ? $arrAvailableDsn['name'] : null;
+            $this->lastDsnUsed = $arrAvailableDsn;
             
-            if (isset(dbAdapter::$arrDsns[$uniqueDsnName]))
+            if ($uniqueDsnName && isset(dbAdapter::$arrDsns[$uniqueDsnName]))
             {
                 $arrDsn =& dbAdapter::$arrDsns[$uniqueDsnName];
                 $conn = isset($arrDsn['conn']) ? $arrDsn['conn'] : null;
+                $onConnect = isset($arrDsn['on_connect']) ? $arrDsn['on_connect'] : null;
+                
+                // any commands to run on connect?
+                if ($conn && is_array($onConnect) && !isset($arrDsn['on_connect_executed']))
+                {
+                    // so that we do initialize during query to lookup for dsn and get in recursive loop
+                    // and some extra work to make onconnect queries work with debugging..
+                    $this->onConnectExecuting = true; 
+                    $this->factory = $conn;
+                    $this->dbName = $this->poolName . ($dbDsnName ? '/'. $dbDsnName : null);
+                    $this->initializeDebug('On connect queries...');
+                    
+                    foreach($onConnect as $onConnectQuery)
+                    {
+                        $this->query($onConnectQuery);
+                    }
+                    
+                    $arrDsn['on_connect_executed'] = true;
+                    $this->onConnectExecuting = false;
+                }                  
             }
         }
         
         $this->dbName = $this->poolName . ($dbDsnName ? '/'. $dbDsnName : null);
-        
         $this->factory = $conn;
     }
 
@@ -144,75 +174,87 @@ class db
      *
      * @param array $arrTypeServers
      */
-    private function getAvailableDsn(&$arrTypeServers)
+    private function getAvailableDsn($type)
     {
-        $arr = null;
-        foreach($arrTypeServers as $i => $arrTypeServer)
+        $arrAvailableDsn = null;
+        $type = strtolower($type);
+        
+        if (($arrPool = dbAdapter::$arrPools[$this->poolName]) && isset($arrPool['servers']) && is_array($arrPool['servers']))
         {
-            $dsn = $arrTypeServer['dsn'];
-            $options = isset($arrTypeServer['options']) ? $arrTypeServer['options'] : null;
-            $name = isset($arrTypeServer['name']) ? $arrTypeServer['name'] : null;
-            
-            $uniqueDsnName = $dsn;
-            if ($options)
+            $arrTypeServers = $arrPool['servers'][$type];
+
+            foreach($arrTypeServers as $i => $arrTypeServer)
             {
-                $md5Options = @md5(serialize($options));
-                $uniqueDsnName .= ':' . $md5Options;
-            }                
-            
-            $arrDsn =& dbAdapter::$arrDsns[$uniqueDsnName];
-            $dsnStatus = $arrDsn['status'];
-            if ($dsnStatus == 'connected')
-            {
-                $arr = array(
-                                'uniqueDsnName' => $uniqueDsnName,
-                                'name' => $name
-                            );            
-                break;
+                $arrAvailableDsn = $this->getAvailableDsnConnector($arrTypeServer);
+                if (is_array($arrAvailableDsn))
+                    break;
             }
-            else if ($dsnStatus == 'not connected')
+        }
+        
+        return $arrAvailableDsn;
+    }
+    
+    /**
+     * Helper for getAvailableDsn
+     */
+    private function getAvailableDsnConnector(&$arrTypeServer)
+    {
+        $arrAvailableDsn = null;
+        $dsn = $arrTypeServer['dsn'];
+        $options = isset($arrTypeServer['options']) ? $arrTypeServer['options'] : null;
+        $onConnect = isset($arrTypeServer['on_connect']) ? $arrTypeServer['on_connect'] : null;
+        $name = isset($arrTypeServer['name']) ? $arrTypeServer['name'] : null;
+        $uniqueDsnName = isset($arrTypeServer['uniqueDsnName']) ? $arrTypeServer['uniqueDsnName'] : null;
+        
+        $arrDsn =& dbAdapter::$arrDsns[$uniqueDsnName];
+        $dsnStatus = $arrDsn['status'];
+        if ($dsnStatus == 'connected')
+        {
+            $arrAvailableDsn = array(
+                                    'uniqueDsnName' => $uniqueDsnName,
+                                    'name' => $name);            
+        }
+        else if ($dsnStatus == 'not connected')
+        {
+            if (preg_match('/^(\w+):\/\/(\w+):(|\w+)@(.+?):(\d+)\/(.+?)$/', $dsn, $arrMatch))
             {
-                if (preg_match('/^(\w+):\/\/(\w+):(|\w+)@(.+?):(\d+)\/(.+?)$/', $dsn, $arrMatch))
+                $driver = $arrMatch['1'];
+                $host = $arrMatch['4'];
+                $port = $arrMatch['5'];
+                $user = $arrMatch['2'];
+                $password = $arrMatch['3'];
+                $schema = $arrMatch['6'];
+                $socket = null;
+                
+                // @todo: handle more db drivers
+                if ($driver == 'mysqli')
                 {
-                    $driver = $arrMatch['1'];
-                    $host = $arrMatch['4'];
-                    $port = $arrMatch['5'];
-                    $user = $arrMatch['2'];
-                    $password = $arrMatch['3'];
-                    $schema = $arrMatch['6'];
-                    $socket = null;
-                    
-                    // @todo: handle more db drivers
-                    if ($driver == 'mysqli')
+                    try
                     {
-                        try
-                        {
-                            //echo "Trying to connect to $name -> $uniqueDsnName ";
-                            $arrDsn['conn'] = new dbMysqli($host, $user, $password, $schema, $port, $socket, $options);
-                            $arrDsn['status'] = 'connected';
-                            $arr = array(
-                                            'uniqueDsnName' => $uniqueDsnName,
-                                            'name' => $name
-                                        );
-                                        
-                            logger::log(logger::LEVEL_INFO, 'mySQL connected to '. $this->poolName . ($name ? '/'. $name : null));
-                        }
-                        catch (\Exception $e)
-                        {
-                            //echo ": FAILED";
-                            $error = $e->getMessage();
-                            $arrDsn['status'] = 'cannot connect';
-                            
-                            logger::log(logger::LEVEL_ERROR, 'mySQL connection error for '. $this->poolName . ($name ? '/'. $name : null) .': '. $error);
-                        }
-                        
-                        //echo "<br/>";
+                        //echo "Trying to connect to $name -> $uniqueDsnName ";
+                        $arrDsn['conn'] = new dbMysqli($host, $user, $password, $schema, $port, $socket, $options);
+                        $arrDsn['status'] = 'connected';
+                        $arrAvailableDsn = array(
+                                                'uniqueDsnName' => $uniqueDsnName,
+                                                'name' => $name);
+
+                        logger::log(logger::LEVEL_INFO, 'mySQL connected to '. $this->poolName . ($name ? '/'. $name : null));
                     }
+                    catch (\Exception $e)
+                    {
+                        //echo ": FAILED";
+                        $error = $e->getMessage();
+                        $arrDsn['status'] = 'cannot connect';
+                        
+                        logger::log(logger::LEVEL_ERROR, 'mySQL connection error for '. $this->poolName . ($name ? '/'. $name : null) .': '. $error);
+                    }
+                    
+                    //echo "<br/>";
                 }
             }
         }
         
-        return $arr;
+        return $arrAvailableDsn;
     }
     
     /**
@@ -221,11 +263,60 @@ class db
      */
     public function server($string)
     {
-        $this->userSpecifiedDsn = $string;
+        $arrPool = dbAdapter::$arrPools[$this->poolName];
+        $arrTypeToRole = array(
+                                'master' => 'write',
+                                'slave' => 'read');
+        $userSpecifiedDsn = array();
+        $server = $string;
+        
+        if ($string == 'last')
+        {
+            $userSpecifiedDsn = $this->lastDsnUsed;
+        }
+        else if (preg_match('/(master|slave):(.*)/i', $string, $arrMatch))
+        {
+            $role = strtolower($arrMatch[1]);
+            if (isset($arrTypeToRole[$role]))
+            {
+                $type = $arrTypeToRole[$role];
+                $dsnName = $arrMatch[2];
+                $userSpecifiedDsn['dsnName'] = $dsnName;
+                $server = $dsnName;
+                if (isset($arrPool['servers']) && isset($arrPool['servers_role_weight_mapping']) && isset($arrPool['servers'][$type]) &&
+                    isset($arrPool['servers_role_weight_mapping'][$dsnName]) && isset($arrPool['servers_role_weight_mapping'][$dsnName][$role]))
+                {
+                    $dsnWeightName = $arrPool['servers_role_weight_mapping'][$dsnName][$role];
+                    if (isset($arrPool['servers'][$type][$dsnWeightName]))
+                    {
+                        $arrTypeServer =& $arrPool['servers'][$type][$dsnWeightName];
+                        $userSpecifiedDsn = $this->getAvailableDsnConnector($arrTypeServer);
+                    }
+                }
+            }
+        }
+        
+        if (is_array($userSpecifiedDsn))
+        {
+            $this->error = array(
+                                    'number' => -1,
+                                    'message' => 'Unable to connect to ' . $string. '. Make sure the name matches the one specified in configuration.');
+        }
+        
+        $this->userSpecifiedDsn = $userSpecifiedDsn;
         
         return $this;
     }
     
+    /**
+     * Sets a comment for the debugging query
+     */
+    public function comment($comment)
+    {
+        $this->comment = $comment;
+        
+        return $this;
+    }
     
     ##############################################################
     ##
@@ -240,15 +331,24 @@ class db
     private function initialize($queryType, $comment = null)
     {
         $this->setDsnFactory($queryType);
-        
+        $this->initializeDebug($comment = null);
+    }
+    
+    /**
+     * initialize debugging
+     */
+    private function initializeDebug($comment = null)
+    {
         // for debugging
         if (config::get('logger.profiling'))
         {
             $this->arrDebug = array();
             $this->arrDebug['dsn_name'] = $this->dbName;
             $this->arrDebug['start'] = microtime();
+            if ($this->comment)
+                $comment = $this->comment;
             $this->arrDebug['comment'] = $comment;
-        }
+        }    
     }
     
     /**
@@ -265,9 +365,12 @@ class db
      */
     private function finalize($returnStatus = false)
     {   
+        // reset dsn & comment so we pick per query bases
+        $this->userSpecifiedDsn = $this->comment = null;
+        
         if (is_object($this->factory))
             $this->error = $this->factory->getError();
-        else
+        else if (!is_array($this->error))
         {
             $this->error = array(
                                     'number' => -1,
@@ -380,7 +483,6 @@ class db
      */
     public function query($query, $args = false, $isMultiQuery = false)
     {
-        $this->queryCounter++;
         $this->queryArgs = $args;
         
         if (preg_match('/^s{0,}SELECT/im', $query))
@@ -388,7 +490,8 @@ class db
         else
             $queryType = 'write';
         
-        $this->initialize($queryType);
+        if (empty($this->onConnectExecuting))
+            $this->initialize($queryType);
         
         if (is_array($args) && count($args))
         {
@@ -396,6 +499,7 @@ class db
             $query = preg_replace_callback(self::DB_QUERY_REGEXP, '\hathoora\database\db::queryArgsReplace', $query);
         }
         $this->query = $query;
+        $this->queryCounter++;
         
         // log it
         logger::log(logger::LEVEL_INFO, $query);

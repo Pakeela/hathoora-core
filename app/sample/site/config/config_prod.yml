@@ -32,6 +32,7 @@ database:
         #
         # weight - For the same roles a database with higher weight is picked first.
         # options - Options for dsn adapter
+        # on_connect - Any sql commands to run on connect
                 # failover default
         failover: default
                      # custom logic
@@ -43,16 +44,22 @@ database:
                 role: master
                 allow_read: false
                 weight: 1
+                on_connect:
+                    - SET NAMES utf8;
             dbMaster2:
                 dsn: mysqli://dbuser:dbpassword@dbhost:3306/dbname
                 role: master
                 read_only: true
                 weight: 2
+                on_connect:
+                    - SET NAMES utf8;
             dbSlave1:
                 dsn: mysqli://dbuser:dbpassword@dbhost:3306/dbname
                 role: slave
                 weight: 1
-
+                on_connect:
+                    - SET NAMES default;
+ 
     # simple dsn
     db2: mysqli://dbuser:dbpassword@dbhost:3306/dbname
 

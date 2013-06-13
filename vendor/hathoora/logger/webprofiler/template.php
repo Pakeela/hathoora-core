@@ -255,13 +255,19 @@
                                     $error = isset($_arrProfile['error']) ? $_arrProfile['error'] : null;
                                     if ($error)
                                         $error = '<div class="hathoora_profile_error">'. $error .'</div>';
+                                    $comment = $_arrProfile['comment'];
+                                    if ($comment)
+                                        $comment = '<div style="color:#BCBCBC; font-size:11px;">'. $comment .'</div>';
                                     
                                     echo '
                                     <tr class="'. $class .'">
                                         <td>'. $i .'</td>
                                         <td class="n">'. number_format(round(\hathoora\logger\profiler::microtimeDiff(HATHOORA_PROFILE_START_TIME, $start) * 1000, 3), 3) .'</td>
                                         <td>'. $_arrProfile['dsn_name'] .'</td>
-                                        <td style="padding-right:10px;">'. nl2br(htmlentities($_arrProfile['query'])) . $error .'</td>
+                                        <td style="padding-right:10px;">
+                                            '. $comment .'
+                                            '. nl2br(htmlentities($_arrProfile['query'])) . $error .'
+                                        </td>
                                         <td class="n">'. $query_time . ($execution_time ? '<br/><span>('. $execution_time .')' : '') .'</td>
                                     </tr>';
                                 }
