@@ -139,6 +139,7 @@ class kernel
         {
             $this->routeRequest = new routeRequest();
             $app = $this->routeRequest->getApp();
+            $appPath = $this->routeRequest->appDirectoryPath;
             define('HATHOORA_APP_URS', $this->routeRequest->baseURS); // base URL
         }
         else
@@ -147,7 +148,7 @@ class kernel
             define('HATHOORA_APP_URS', null);
         }
         define('HATHOORA_APP', $app);
-        define('HATHOORA_APP_PATH', $this->routeRequest->appDirectoryPath);
+        define('HATHOORA_APP_PATH', $appPath);
         
         // make kernel available to registry
         registry::setByRef('hathooraKernel', $this);

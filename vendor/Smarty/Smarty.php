@@ -1,4 +1,4 @@
-<?php
+<?php
 namespace Smarty;
 
 require_once('Smarty.class.php');

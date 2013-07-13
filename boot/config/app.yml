@@ -2,7 +2,11 @@
 
 # Define application or website that are being supported.
 app:
-    # Catch all, user sites
+    # admin site
+    admin: 
+        pattern: /admin(|/)
+        directory: sample
+    # Default site
     site: 
         default: true
         directory: sample

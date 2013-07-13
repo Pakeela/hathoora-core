@@ -98,6 +98,22 @@ class templateStuob extends container implements templateInterface
     }
 
     /**
+     * Assign variables from controller->_tpl_vars to view
+     */
+    public function assignControllerTPLVars()
+    {
+        // any _tpl_vars from controller\base class?
+        $controller = container::getController();
+        if (is_array($controller->_tpl_vars))
+        {
+            foreach($controller->_tpl_vars as $k => $v)
+            {
+                $this->assign($k, $v);
+            }
+        }
+    }    
+
+    /**
      * Append variable to be used in template
      *
      * @param string $name of the variable

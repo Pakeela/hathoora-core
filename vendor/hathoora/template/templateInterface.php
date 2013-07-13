@@ -30,6 +30,11 @@ interface templateInterface
     public function assignByRef($name, &$value);
     
     /**
+     * Assign variables from controller->_tpl_vars to view
+     */
+    public function assignControllerTPLVars();
+    
+    /**
      * Append variable to be used in template
      *
      * @param string $name of the variable
@@ -80,7 +85,7 @@ interface templateInterface
     public function fetch($template, $cache_id = null, $arrExtra = array());
 
     /**
-     * a wrapper - displays a Smarty template
+     * a wrapper - displays a template
      * 
      * @param string $ |object $template the resource handle of the template file  or template object
      * @param mixed $cache_id cache id to be used with this template

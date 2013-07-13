@@ -67,6 +67,22 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     }
     
     /**
+     * Assign variables from controller->_tpl_vars to view
+     */
+    public function assignControllerTPLVars()
+    {
+        // any _tpl_vars from controller\base class?
+        $controller = container::getController();
+        if (is_array($controller->_tpl_vars))
+        {
+            foreach($controller->_tpl_vars as $k => $v)
+            {
+                $this->assign($k, $v);
+            }
+        }
+    }    
+
+    /**
      * Append variable to be used in template
      *
      * @param string $name of the variable
@@ -154,10 +170,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      */
     public function display($template, $cache_id = null, $arrExtra = array())
     {
-        $compile_id = !empty($arrExtra['compile_id']) ? $arrExtra['compile_id'] : null;
-        $this->assignControllerTPLVars();
-        
-        $return = parent::display($template, $cache_id, $compile_id);    
+        echo self::fetch($template, $cache_id, $compile_id);    
     }
     
     /**
@@ -169,21 +182,5 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     public function render($arrController, $args)
     {
     
-    }
-    
-    /**
-     * Assign variables assigned to controller->_tpl_vars
-     */
-    private function assignControllerTPLVars()
-    {
-        // any _tpl_vars from controller\base class?
-        $controller = container::getController();
-        if (is_array($controller->_tpl_vars))
-        {
-            foreach($controller->_tpl_vars as $k => $v)
-            {
-                $this->assign($k, $v);
-            }
-        }
     }
 }
