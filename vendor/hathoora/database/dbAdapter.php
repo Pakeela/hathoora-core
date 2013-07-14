@@ -181,8 +181,8 @@ class dbAdapter
                     $arrDsns[$uniqueDsnName]['pools'][$poolName .':'] = '10:';
 
                     // read and write servers are the same in this case
-                    $arrPool['servers']['write']['10:'] = array('dsn' => $dsn);
-                    $arrPool['servers']['read']['10:'] = array('dsn' => $dsn);
+                    $arrPool['servers']['write']['10:'] = array('dsn' => $dsn, 'uniqueDsnName' => $uniqueDsnName);
+                    $arrPool['servers']['read']['10:'] = array('dsn' => $dsn, 'uniqueDsnName' => $uniqueDsnName);
                 }
                 
                 $arrPools[$poolName] = $arrPool;

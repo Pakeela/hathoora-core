@@ -50,7 +50,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param string $name of the variable
      * @param mixed $value of the variable
      */
-    public function assign($name, $value)
+    public function __assign($name, $value)
     {
         return parent::assign($name, $value);
     }
@@ -61,7 +61,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     * @param string $name of the variable
     * @param mixed $value of the variable
     */
-    public function assignByRef($name, &$value)
+    public function __assignByRef($name, &$value)
     {
         return parent::assignByRef($name, $value);
     }
@@ -69,7 +69,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     /**
      * Assign variables from controller->_tpl_vars to view
      */
-    public function assignControllerTPLVars()
+    public function __assignControllerTPLVars()
     {
         // any _tpl_vars from controller\base class?
         $controller = container::getController();
@@ -88,7 +88,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param string $name of the variable
      * @param mixed $value of the variable
      */
-    public function append($name, $value)
+    public function __append($name, $value)
     {
         return parent::append($name, $value);
     }
@@ -100,7 +100,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param string $id Unique ID of this data
      * @param string $group Group to store data under
      */
-    public function isCached($template, $id, $group = null)
+    public function __isCached($template, $id, $group = null)
     {
         return parent::isCached($template, $id, $group);
     }
@@ -111,7 +111,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param string $name of the variable
      * @return value of variable
      */
-    public function getVar($name)
+    public function __getVar($name)
     {
     
     }
@@ -119,7 +119,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     /**
      * Return all variables
      */
-    public function getVars()
+    public function __getVars()
     {
     
     }
@@ -127,7 +127,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     /**
      * Include a template
      */
-    public function load($file, $vars = array())
+    public function __load($file, $vars = array())
     {
     
     }
@@ -135,7 +135,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
     /**
      * Returns flash message and clears flash session
      */
-    public function getFlashMessage()
+    public function __getFlashMessage()
     {
     
     }
@@ -148,10 +148,10 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param array $arrExtra for additional requirements
      * @return string rendered template output
      */
-    public function fetch($template, $cache_id = null, $arrExtra = array())
+    public function __fetch($template, $cache_id = null, $arrExtra = array())
     {
         $compile_id = !empty($arrExtra['compile_id']) ? $arrExtra['compile_id'] : null;
-        $this->assignControllerTPLVars();
+        $this->__assignControllerTPLVars();
         
         logger::log(logger::LEVEL_INFO, 'Template ('. $template .') fetched');
         
@@ -168,7 +168,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param array $arrExtra for additional requirements
      * @result outputs the rendered template
      */
-    public function display($template, $cache_id = null, $arrExtra = array())
+    public function __display($template, $cache_id = null, $arrExtra = array())
     {
         echo self::fetch($template, $cache_id, $compile_id);    
     }
@@ -179,7 +179,7 @@ class templateSmarty extends \Smarty\Smarty implements templateInterface
      * @param array $arrController containing controller & method names
      * @param array $args to be passed to the method
      */
-    public function render($arrController, $args)
+    public function __render($arrController, $args)
     {
     
     }

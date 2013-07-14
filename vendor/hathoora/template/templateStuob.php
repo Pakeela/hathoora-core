@@ -81,7 +81,7 @@ class templateStuob extends container implements templateInterface
      * @param string $name of the variable
      * @param mixed $value of the variable
      */
-    public function assign($name, $value)
+    public function __assign($name, $value)
     {
         $this->var[$name] = $value;
     }
@@ -92,7 +92,7 @@ class templateStuob extends container implements templateInterface
      * @param string $name of the variable
      * @param mixed $value of the variable
      */
-    public function assignByRef($name, &$value)
+    public function __assignByRef($name, &$value)
     {
         $this->var[$name] = $value;
     }
@@ -100,7 +100,7 @@ class templateStuob extends container implements templateInterface
     /**
      * Assign variables from controller->_tpl_vars to view
      */
-    public function assignControllerTPLVars()
+    public function __assignControllerTPLVars()
     {
         // any _tpl_vars from controller\base class?
         $controller = container::getController();
@@ -119,7 +119,7 @@ class templateStuob extends container implements templateInterface
      * @param string $name of the variable
      * @param mixed $value of the variable
      */
-    public function append($name, $value)
+    public function __append($name, $value)
     {
         $this->var[$name] .= $value;
     }
@@ -129,7 +129,7 @@ class templateStuob extends container implements templateInterface
      *
      * @param string $var
      */
-    public function getVar($var)
+    public function __getVar($var)
     {
         return $this->var[$var];
     }
@@ -137,7 +137,7 @@ class templateStuob extends container implements templateInterface
     /**
      * get assigned vars
      */
-    public function getVars()
+    public function __getVars()
     {
         return $this->var;
     }    
@@ -147,7 +147,7 @@ class templateStuob extends container implements templateInterface
      * 
      * @param string $file if starts with / then we consider is absolute path, otherwise its relative to template_dir
      */
-    public function load($file, $vars = array())
+    public function __load($file, $vars = array())
     {
         if (substr($file, 0, 1) == '/')
             $path = $file;
@@ -178,11 +178,21 @@ class templateStuob extends container implements templateInterface
         else
             logger::log(logger::LEVEL_ERROR, 'Template ('. $file .') is not found.');
     }
-
+    
+     /**
+     * Include a template
+     * 
+     * @param string $file if starts with / then we consider is absolute path, otherwise its relative to template_dir
+     */
+    public function load($file, $vars = array())
+    {
+        return $this->__load($file, $vars);
+    }
+    
     /**
      * Returns flash message and clears flash session
      */
-    public function getFlashMessage()
+    public function __getFlashMessage()
     {
         $request = $this->getRequest();
         $arrMessage = $request->sessionParam('httpFlash');
@@ -192,15 +202,23 @@ class templateStuob extends container implements templateInterface
     }
     
     /**
+     * Returns flash message and clears flash session
+     */
+    public function getFlashMessage()
+    {
+        return $this->__getFlashMessage();
+    }    
+    
+    /**
      * Display a template
      *
      * @param string $template the resource handle of the template file or template object
      * @param mixed $cache_id cache id to be used with this template
      * @param array $arrExtra for additional requirements
      */
-    public function display($template, $cache_id = null, $arrExtra = array())
+    public function __display($template, $cache_id = null, $arrExtra = array())
     {
-        echo $this->fetch($template, $cache_id, $arrExtra);
+        echo $this->__fetch($template, $cache_id, $arrExtra);
     }
 
     /**
@@ -210,10 +228,10 @@ class templateStuob extends container implements templateInterface
      * @param mixed $cache_id cache id to be used with this template
      * @param array $arrExtra for additional requirements
      */
-    public function fetch($template, $cache_id = null, $arrExtra = array())
+    public function __fetch($template, $cache_id = null, $arrExtra = array())
     {
         $group = null; // for future
-        if ($this->isCached($template, $cache_id, $group))
+        if ($this->__isCached($template, $cache_id, $group))
         {
             $data = $this->read($template, $cache_id, $group);
         }
@@ -253,7 +271,7 @@ class templateStuob extends container implements templateInterface
             extract($controller->_tpl_vars, EXTR_OVERWRITE);
         
         $data = null;
-        if ($this->template_exists($file))
+        if ($this->templateExists($file))
         {
             ob_start();
             include_once($file);
@@ -287,7 +305,7 @@ class templateStuob extends container implements templateInterface
 
         if (!$cache_time) return false;
 
-        $filename = $this->get_filename($template, $id, $group);
+        $filename = $this->getFilename($template, $id, $group);
         
 
         if ($fp = @fopen($filename, 'xb'))
@@ -310,7 +328,7 @@ class templateStuob extends container implements templateInterface
      */
     private function read($template, $id, $group = null)
     {
-        $filename = $this->get_filename($template, $id, $group);
+        $filename = $this->getFilename($template, $id, $group);
         return file_get_contents($filename);
     }
 
@@ -321,11 +339,11 @@ class templateStuob extends container implements templateInterface
      * @param string $id Unique ID of this data
      * @param string $group Group to store data under
      */
-    public function isCached($template, $id, $group = null)
+    public function __isCached($template, $id, $group = null)
     {
         if (!$id) return false;
         
-        $filename = $this->get_filename($template, $id, $group);
+        $filename = $this->getFilename($template, $id, $group);
         if ($this->caching && file_exists($filename) && filemtime($filename) > time())
             return true;
 
@@ -342,7 +360,7 @@ class templateStuob extends container implements templateInterface
      * @param string $id Unique ID of this data
      * @param string $group Group to store data under
      */
-    private function get_filename($template, $id, $group = null)
+    private function getFilename($template, $id, $group = null)
     {
         // remove directory seperator from $template name
         $template = str_replace(array('/','\\'), array('_','_'), $template);
@@ -367,7 +385,7 @@ class templateStuob extends container implements templateInterface
      *
      * @param string $template
      */
-    public function template_exists($template)
+    public function templateExists($template)
     {
         if (substr($template, 0, 1) == '/' && realpath($template))
             $file = $template;
@@ -464,7 +482,7 @@ class templateStuob extends container implements templateInterface
      * @param array $arrController containing controller & method names
      * @param array $args to be passed to the method
      */
-    public function render($arrController, $args = array())
+    public function __render($arrController, $args = array())
     {
         $action = array_pop($arrController);
         $controller = array_pop($arrController);
@@ -477,5 +495,16 @@ class templateStuob extends container implements templateInterface
         
         $response =  $controllerObj->invoke($nsClass, $action, $args); 
         $response->render();
+    }
+    
+    /**
+     * Render a controller
+     *
+     * @param array $arrController containing controller & method names
+     * @param array $args to be passed to the method
+     */
+    public function render($arrController, $args = array())
+    {
+        return $this->__render($arrController, $args);
     }
 }

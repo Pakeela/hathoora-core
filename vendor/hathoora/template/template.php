@@ -103,7 +103,7 @@ class template
      */
     public function assign($name, $value, $scopeGlobal = false)
     {
-        $this->factory->assign($name, $value);
+        $this->factory->__assign($name, $value);
         
         if ($scopeGlobal)
             self::$globalVars[$name] = $value;
@@ -118,7 +118,7 @@ class template
     */
     public function assignByRef($name, &$value, $scopeGlobal = false)
     {
-        $this->factory->assignByRef($name, $value);
+        $this->factory->__assignByRef($name, $value);
         
         if ($scopeGlobal)
             self::$globalVars[$name] =& $value;        
@@ -132,7 +132,7 @@ class template
      */
     public function append($name, $value)
     {
-        $this->factory->append($name, $value);
+        $this->factory->__append($name, $value);
     }
     
     /**
@@ -147,11 +147,11 @@ class template
         $arrExtra = $this->arrExtra;
         if (config::get('logger.profiling'))
         {
-            $cached = $this->factory->isCached($template, $cache_id);
+            $cached = $this->factory->__isCached($template, $cache_id);
             $this->arrDebug['cached'] = $cached == true ? 1 : 0;
         }
         
-        $return = $this->factory->fetch($template, $cache_id, $arrExtra);
+        $return = $this->factory->__fetch($template, $cache_id, $arrExtra);
         
         if (config::get('logger.profiling'))
         {

@@ -18,6 +18,7 @@ class defaultController extends controller
     {
         #$db2 = \hathoora\database\dbAdapter::getConnection('db2');
         #printr($db2->fetchArray('SELECT NOW();'));
+        #die;
         
         // lazy loaded connection
         $default = \hathoora\database\dbAdapter::getConnection('default');
