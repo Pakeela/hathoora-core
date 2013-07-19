@@ -21,10 +21,13 @@ class validationRules
 
     /**
      * Returns true if input if valid url
+     * @url http://phpcentral.com/208-url-validation-in-php.html
      */
     public static function url($input)
     {
-        return filter_var($input, FILTER_VALIDATE_URL);
+        //return filter_var($input, FILTER_VALIDATE_URL);
+
+        return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(\.\w{2,3}){1,2}(:[0-9]+)?(/.*)?$|i', $url);
     }
     
     /**

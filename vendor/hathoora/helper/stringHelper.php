@@ -12,7 +12,8 @@ class stringHelper
      * @param string $string to obfuscae
      * @param string $keyPhrase to obfuscae with, use the same key to deobfuscate
      */
-    public static function XOREncryption($string, $keyPhrase){
+    public static function XOREncryption($string, $keyPhrase)
+    {
 
         $KeyPhraseLength = strlen($keyPhrase);
 
@@ -87,6 +88,28 @@ class stringHelper
         }
 
         return $string;    
+    }
+
+    /**
+     * Only strip tehse tags
+     *
+     * @param string $str
+     * @param mixed $tags
+     *          when not array: <p><h1>
+     *          when array: array('p', 'h1')
+     * @url: http://www.php.net/manual/en/function.strip-tags.php#93567
+     */
+    function stripTheseTags($str, $tags) 
+    {
+        if(!is_array($tags)) 
+        {
+            $tags = (strpos($str, '>') !== false ? explode('>', str_replace('<', '', $tags)) : array($tags));
+            if(end($tags) == '') array_pop($tags);
+        }
+        foreach($tags as $tag) 
+            $str = preg_replace('#</?'.$tag.'[^>]*>#is', '', $str);
+            
+        return $str;
     }
 }
     
