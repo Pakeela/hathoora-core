@@ -1,3 +1,15 @@
+hathoora:
+    framework:
+        gulaboo:
+            # when enabled adds 'assets' service
+            assets:
+                enabled: 1 
+        
+        translation:
+            # when enabled adds 'translation' service
+            enabled: 1 
+
+
 *** In order to use Smarty template, follow these steps:    1. Download the latest version from http://www.smarty.net/download    Once downloaded, extract the contents of smarty-version/libs/* vendor/Smarty, such that the path    becomes `vendor/Smarty/Smarty.class.php`    Then creaste a new ` vendor/Smarty/Smarty.php`
     <?php        namespace Smarty;
         require_once('Smarty.class.php');        /**         * Wrapper for SplClassLoader namespacing         */        class Smarty extends \Smarty        { }

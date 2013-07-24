@@ -80,6 +80,7 @@ class serviceManager
                 {
                     if (!$factory_service)
                     {
+                        // @todo pass $args (and also pass via ref)
                         $service = new $class();
                     
                         // any calls to make?
@@ -237,14 +238,25 @@ class serviceManager
                                                         'method' => 'getContainer'));
 
         // translation service?
-        if (registry::getConfig('translation.enabled'))
+        if (registry::getConfig('hathoora.framework.translation.enabled'))
         {
-            logger::log(logger::LEVEL_DEBUG, 'Service "translator" has been added because of translation.enabled.');        
+            logger::log(logger::LEVEL_DEBUG, 'Service "translator" has been added because of hathoora.framework.translation.enabled.');
             registry::setConfig('services.translator', array(
                                                                 'class' => '\hathoora\translation\translator',
                                                                 'method' => 't',
                                                                 'calls' => array(
                                                                                     'setContainer' => array('@container@'))));
         }
+        
+        // translation service?
+        if (registry::getConfig('hathoora.framework.gulaboo.assets.enabled'))
+        {
+            logger::log(logger::LEVEL_DEBUG, 'Service "assets" has been added because of hathoora.framework.gulaboo.assets.enabled.');
+            registry::setConfig('services.gulabooAssets', array(
+                                                                'class' => '\hathoora\gulaboo\assets',
+                                                                'calls' => array(
+                                                                                    //'setContainer' => array('@container@')
+                                                                                )));
+        }        
     }
 }

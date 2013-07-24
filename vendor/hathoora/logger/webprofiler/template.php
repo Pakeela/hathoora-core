@@ -6,10 +6,10 @@
     );
 ?>
 
-<link rel="stylesheet" type="text/css" href="/media/_hathoora/webprofiler/webprofiler.css?<?php echo $version; ?>" media="screen" />
+<link rel="stylesheet" type="text/css" href="/_assets/_hathoora/webprofiler/webprofiler.css?<?php echo $version; ?>" media="screen" />
 <script>document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>');</script>
-<script>window.jQuery || document.write('<script src="/media/_hathoora/webprofiler/jquery-1.8.3.min.js"><\/script>')</script>
-<script type="text/javascript" src="/media/_hathoora/webprofiler/webprofiler.js?<?php echo $version; ?>"></script>
+<script>window.jQuery || document.write('<script src="/_assets/_hathoora/webprofiler/jquery-1.8.3.min.js"><\/script>')</script>
+<script type="text/javascript" src="/_assets/_hathoora/webprofiler/webprofiler.js?<?php echo $version; ?>"></script>
 
 <div id="hathoora_debug">
     <div class="hathoora_summary">
@@ -18,7 +18,7 @@
     </div>
     
     <div class="hathoora_logo">
-        <img src="/media/_hathoora/hathoora_logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
+        <img src="/_assets/_hathoora/hathoora_logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
         <?php echo HATHOORA_ENV; ?>
     </div>
     

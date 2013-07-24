@@ -25,6 +25,7 @@ class dispatcher
         $this->baseURS =& $request->baseURS;
         $this->htRO = array();
         
+        // @todo check using HTTP_HTRO as well
         if (!empty($_SERVER['REDIRECT_HTRO']))
         {
             $this->htRO = array(
