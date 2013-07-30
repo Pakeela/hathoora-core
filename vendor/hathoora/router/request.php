@@ -28,7 +28,12 @@ class request
      * Stores app directory path
      */
     public $appDirectoryPath = null;
-     
+
+    /**
+     *  Whether or not app has custom dispatcher
+     */
+    public $appHasDispatcher = null;
+
     /**
       * Stores current URI
       */
@@ -137,7 +142,7 @@ class request
                 }
             }
         }
-        
+
         return $this->app;
     }
     
@@ -185,7 +190,7 @@ class request
     /**
      * Dispatch the request
      *
-     * @return hathoora\router\dispatcher::dispatch()
+     * @return \hathoora\router\dispatcher::dispatch()
      */
     public function dispatch()
     {

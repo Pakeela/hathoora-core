@@ -12,16 +12,24 @@ class webprofiler
 
     public function display(\hathoora\container &$container)
     {
-        $webProfiler = $container->getConfig('logger.webprofiler.enabled');
+        $webProfiler = $container->getConfig('hathoora.logger.webprofiler.enabled');
 
         if (!$webProfiler)
             return;
         
         // request
         $request = $container->getRequest();
-       
+
+        // skip on ajax?
+        $skipOnAjax = true;
+        if ($container->hasConfig('hathoora.logger.webprofiler.skip_on_ajax'))
+            $skipOnAjax = $container->getConfig('hathoora.logger.webprofiler.skip_on_ajax');
+
+        if ($skipOnAjax && $request->isAjax())
+            return;
+
         // skip webprofiler for specified POST params
-        if ($request->postParam() && ($arrSkipParams = $container->getConfig('logger.webprofiler.skip_on_post_params')))
+        if ($request->postParam() && ($arrSkipParams = $container->getConfig('hathoora.logger.webprofiler.skip_on_post_params')))
         {
             foreach ($arrSkipParams as $param)
             {
@@ -33,7 +41,7 @@ class webprofiler
         }
         
         // skip webprofiler for specified GET params
-        if ($request->getParam() && ($arrSkipParams = $container->getConfig('logger.webprofiler.skip_on_get_params')))
+        if ($request->getParam() && ($arrSkipParams = $container->getConfig('hathoora.logger.webprofiler.skip_on_get_params')))
         {
             foreach ($arrSkipParams as $param)
             {
@@ -48,11 +56,21 @@ class webprofiler
         $contentType = $response->getHeader('Content-Type');
         
         // do we need to display profiler?
-        $contentTypeRegex = $container->getConfig('logger.webprofiler.content_type');
-        if (!$contentTypeRegex)
-            $contentTypeRegex = 'text/html';
-            
-        if (preg_match('#' . $contentTypeRegex  . '#i', $contentType))
+        $contentTypeRegexMatched = false;
+        $arrContentTypeRegexes = $container->getConfig('hathoora.logger.webprofiler.content_types');
+        if (!$arrContentTypeRegexes)
+            $arrContentTypeRegexes = array('text/html');
+
+        foreach($arrContentTypeRegexes as $contentTypeRegex)
+        {
+            if (preg_match('#' . $contentTypeRegex  . '#i', $contentType))
+            {
+                $contentTypeRegexMatched = true;
+                break;
+            }
+        }
+
+        if ($contentTypeRegexMatched)
         {
             // include template
             $template = dirname ( __FILE__ ) . '/template.php';
@@ -71,7 +89,7 @@ class webprofiler
                 $arrConfigs = $container->getAllConfig();
                 
                 // logging
-                $loggingStatus = $container->getConfig('logger.logging.enabled');
+                $loggingStatus = $container->getConfig('hathoora.logger.logging.enabled');
                 
                 $arrProfile =& profiler::$arrProfile;
                 $arrLog =& logger::$arrLog;

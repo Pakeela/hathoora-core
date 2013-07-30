@@ -17,6 +17,7 @@ class observer
      * @param string $eventName 
      * @param mixed $subject that notifies observers and is passed as argument to observers
      * @param bool $returnResult when true, the result of observer will be send back
+     * @return mixed
      */
     public function addEvent($eventName, &$subject, $returnResult = false)
     {
@@ -84,13 +85,13 @@ class observer
         $arrListeners = config::get('listeners');
         
         // add webprofiler listener
-        if (config::get('logger.webprofiler.enabled'))
+        if (config::get('hathoora.logger.webprofiler.enabled'))
         {
             $arrListeners['kernel.terminate']['webprofiler'] = array(
                                                                         'class' => '\hathoora\logger\webprofiler\webprofiler',
                                                                         'method' => 'display');
                                                                 
-            logger::log(logger::LEVEL_DEBUG, 'Listener "kernel.terminate[webprofiler]" has been added because logger.webprofiler is enabled.');
+            logger::log(logger::LEVEL_DEBUG, 'Listener "kernel.terminate[webprofiler]" has been added because <i>hathoora.logger.webprofiler</i> is enabled.');
         }
         
         if (is_array($arrListeners))

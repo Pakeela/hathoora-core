@@ -92,8 +92,8 @@
         <div class="hathoora_section_toggle">Logging (<?php echo count($arrLog); ?>)</div>
         <div class="hathoora_section_table_wrapper">
             <div style="padding-left:10px; padding-bottom:5px;">
-                <b>logger.logging.enabled:</b> <?php echo $loggingStatus; ?><br/>
-                <b>logger.webprofiler.content_type:</b> <?php echo $contentTypeRegex; ?> <br/>
+                <b>hathoora.logger.logging.enabled:</b> <?php echo $loggingStatus; ?><br/>
+                <b>hathoora.logger.webprofiler.content_types:</b> <?php print_r($arrContentTypeRegexes); ?> <br/>
             </div>
             <center class="hathoora_section_table">
                 <table>
@@ -135,7 +135,7 @@
                             {
                                 echo '
                                 <tr>
-                                    <td colspan="5">Nothing is being logged, make sure you have defined "logger.logging.enabled" and "logger.logging.level" in configuration files properly.</td>
+                                    <td colspan="5">Nothing is being logged, make sure you have defined "<i>hathoora.logger.logging.enabled</i>" and "<i>hathoora.logger.logging.level</i>" in configuration files properly.</td>
                                 </tr>';                    
                             }
                         ?>

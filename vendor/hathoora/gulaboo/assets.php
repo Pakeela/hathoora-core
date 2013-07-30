@@ -24,22 +24,22 @@ class assets extends container
     public function getAppAsset($path, $app = null)
     {
         static $arrAppPathHash;
-        
-        $appPath = $appPathHash = null;
+
+        $appDirectory = null;
 	
         if (empty($app))
-        {
             $app = HATHOORA_APP;
-            $appPath = HATHOORA_APP_PATH;
-        }
 
         if (!isset($arrAppPathHash[$app]))
         {
-            preg_match('/app\/(.+?)\/'. $app .'/i', $appPath, $arrMatch);
-            $arrAppPathHash[$appPath] = array_pop($arrMatch) . ':'. $app . '/';
+            $arrApp = $this->getRouteRequest()->getAppConfig($app);
+            if (isset($arrApp['directory']))
+                $appDirectory = $arrApp['directory'];
+
+            $arrAppPathHash[$app] = $appDirectory . '::'. $app . '/';
         }
         
-        $appPathHash = $arrAppPathHash[$appPath];
+        $appPathHash = $arrAppPathHash[$app];
         
         $url = $this->getConfig('assets.urls.http');
         $url .= '/_assets/_app/' . $appPathHash;

@@ -62,7 +62,12 @@ class db
      * A comment for query for debugging..
      */
     protected $comment;
-    
+
+    /**
+     * dsn has onconnect sql commands to tun
+     */
+    protected $onConnectExecuting;
+
     /**
      * last dsn used
      */
@@ -110,8 +115,7 @@ class db
     private function setDsnFactory($type)
     {
         static $arrPoolCurrentDsnForType;
-        $conn = null;
-        $dbDsnName = null;
+        $conn = $dbDsnName = $arrAvailableDsn = null;
         $currentPoolDsnTypeIdentifier = $this->poolName .':' . $type;
         $userSpecifiedDsn = $this->userSpecifiedDsn;
         
@@ -172,7 +176,8 @@ class db
     /**
      * From given set of servers returns the next available server
      *
-     * @param array $arrTypeServers
+     * @param $type
+     * @return array|null
      */
     private function getAvailableDsn($type)
     {
@@ -340,7 +345,7 @@ class db
     private function initializeDebug($comment = null)
     {
         // for debugging
-        if (config::get('logger.profiling'))
+        if (config::get('hathoora.logger.profiling'))
         {
             $this->arrDebug = array();
             $this->arrDebug['dsn_name'] = $this->dbName;
@@ -350,7 +355,7 @@ class db
             $this->arrDebug['comment'] = $comment;
         }    
     }
-    
+
     /**
      * This function does bunch of stuff:
      *      assign $this->rowCount
@@ -359,9 +364,8 @@ class db
      *          return true false or throw exception
      *
      * @param bool $returnStatus, when true then we don't throw exception upon errors
-     * @return 
-     *     when returnStatus = true, then returns true when no errors, false when errors 
-     *      when returnStatus = false, then throws exception on errors
+     * @throws \Exception
+     * @return bool when returnStatus = true, then returns true when no errors, false when errors
      */
     private function finalize($returnStatus = false)
     {   
@@ -381,7 +385,7 @@ class db
         if (isset($this->error['number']))
             $hasError = true;
         
-        if (config::get('logger.profiling') && ($this->query || !empty($this->arrDebug['comment'])))
+        if (config::get('hathoora.logger.profiling') && ($this->query || !empty($this->arrDebug['comment'])))
         {
             $this->arrDebug['end_query'] = microtime();
             $this->arrDebug['query'] = $this->query;
@@ -473,15 +477,16 @@ class db
             }
         }
     }
-    
+
     /**
      * query (or execute) function
      *
      * @param string $query
      * @param array $args (optional)
-     * @return dbResult object successful, else returns false
+     * @param bool $isMultiQuery
+     * @return mixed|object dbResult object successful, else returns false
      */
-    public function query($query, $args = false, $isMultiQuery = false)
+    public function query($query, $args = null, $isMultiQuery = false)
     {
         $this->queryArgs = $args;
         
@@ -492,7 +497,7 @@ class db
         
         if (empty($this->onConnectExecuting))
             $this->initialize($queryType);
-        
+
         if (is_array($args) && count($args))
         {
             $this->queryArgsReplace($args, $this);
@@ -618,9 +623,9 @@ class db
      *
      * @param string $query
      * @param array $args (optional)
-     * @return last insert id when successful, else returns false
+     * @return int last insert id when successful, else returns false
      */
-    public function insert($query, $args = false)
+    public function insert($query, $args = null)
     {
         $result = $this->query($query, $args);
         if ($result && $this->rowCount)
@@ -674,18 +679,19 @@ class db
 
         return $arrResult;
     }
-    
+
     /**
      * fetch all rows
-     * 
+     *
      * @param string $query
      * @param array $args (optional)
      * @param array $arrExtra for extra logic
      *      - pk: field name to return array keyed with this value from results set
-     * @return array of row     
+     * @return array of row
      */
-    public function fetchArrayAll($query, $args = false, $arrExtra = array())
+    public function fetchArrayAll($query, $args = null, $arrExtra = array())
     {
+        $arrResult = null;
         $result = $this->query($query, $args);
         if ($result && $result->rowCount())
         {

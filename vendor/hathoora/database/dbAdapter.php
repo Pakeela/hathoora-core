@@ -34,7 +34,7 @@ class dbAdapter
      * @param string $dsnName for a given pool when used advanced db configuration @TODO
      *      When a specific dsnName is passed, then there is no failover logic
      *
-     * @return hathoora\database\db class
+     * @return \hathoora\database\db class
      */
     public static function getConnection($poolName = 'default', $dsnName = null)
     {
@@ -42,7 +42,7 @@ class dbAdapter
         $arrDsns =& self::$arrDsns;
         $arrPoolDsnConnection =& self::$arrPoolDsnConnection;
         $error = false;
-        $configKey = 'database.'. $poolName;
+        $configKey = 'hathoora.database.'. $poolName;
         $poolDsnConnectionObject = $poolName . ':' . $dsnName;
         
         if (!isset($arrPoolDsnConnection[$poolDsnConnectionObject]))

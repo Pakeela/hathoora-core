@@ -35,12 +35,13 @@ class profiler
     /**
      * Simple benchmark function
      * @param string $name of benchmark
-     * @param string $action (start or stop)
+     * @internal param string $action (start or stop)
+     * @return void
      */
     public function benchmark($name)
     {
-        if (!config::get('logger.profiling'))
-            return false;
+        if (!config::get('hathoora.logger.profiling'))
+            return null;
             
         $arr =& self::$arrProfile['benchmark'];
 
@@ -54,13 +55,14 @@ class profiler
      * we want to debug various things categrozied by type debugging
      * 
      * @param string $type debugging type
-     * @param $name a unique identifier
-     * @param $arr stuff to debug (contains like start, end time etc..)
+     * @param string $name a unique identifier
+     * @param array $arr stuff to debug (contains like start, end time etc..)
+     * @return null
      */
-    public static function profile($type, $name = false, $arr)
+    public static function profile($type, $name = null, $arr)
     {
-        if (!config::get('logger.profiling'))
-            return false;
+        if (!config::get('hathoora.logger.profiling'))
+            return null;
         
         if ($name)
             self::$arrProfile[$type][$name] = $arr;
@@ -72,18 +74,18 @@ class profiler
      * Adjust debugging values
      *
      * @param string $type debugging type
-     * @param $name a unique identifier
-     * @param $arr key value pair that we want to modiff
+     * @param string $name a unique identifier
+     * @param array $arr key value pair that we want to modiff
+     * @return null
      */
     public static function modify($type, $name, $arr)
     {
-        if (!config::get('logger.profiling'))
-            return false;
+        if (!config::get('hathoora.logger.profiling'))
+            return null;
         
         if (!$name && !is_array($arr))
-            return false;
-            
-        
+            return null;
+
         if ($name && isset(self::$arrProfile[$type][$name]) && is_array(self::$arrProfile[$type][$name]))
         {
             foreach($arr as $k => $v)

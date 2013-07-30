@@ -40,7 +40,7 @@ class dispatcher
     /**
      * Dispatch request and execute controller 
      *
-     * @return hathoora\router\dispatcher class
+     * @return \hathoora\router\dispatcher class
      */
     public function dispatch()
     {

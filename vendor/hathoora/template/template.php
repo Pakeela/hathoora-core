@@ -43,11 +43,11 @@ class template
      * Contructor
      *
      * @param string $template file name relative to app's view folder
-     * @param array variables to make available to template
+     * @param array $vars to make available to template
      */
     public function __construct($template, $vars = array())
     {
-        if (config::get('logger.profiling'))
+        if (config::get('hathoora.logger.profiling'))
         {
             $this->arrDebug = array(
                 'start' => microtime()
@@ -57,14 +57,14 @@ class template
         if (!config::has('template.engine.name'))
             $engine = 'Stuob';
         else 
-            $engine = config::get('template.engine.name');
+            $engine = config::get('hathoora.template.engine.name');
         
         $thClass =  '\hathoora\template\template'. $engine;
         
         // has custom template class
         if (config::has('template.engine.class'))
         {
-            $thClass =  config::get('template.engine.class');
+            $thClass =  config::get('hathoora.template.engine.class');
         }
         
         // assign template and tpl dir
@@ -75,7 +75,7 @@ class template
         );
         
         // pass params to config
-        $arrConfig = config::get('template.' . $engine);
+        $arrConfig = config::get('hathoora.template.' . $engine);
         if (is_array($arrConfig))
         {
             // allow overwite from $arrConfig
@@ -145,7 +145,7 @@ class template
         $template = $this->template;
         $cache_id = $this->cache_id;
         $arrExtra = $this->arrExtra;
-        if (config::get('logger.profiling'))
+        if (config::get('hathoora.logger.profiling'))
         {
             $cached = $this->factory->__isCached($template, $cache_id);
             $this->arrDebug['cached'] = $cached == true ? 1 : 0;
@@ -153,7 +153,7 @@ class template
         
         $return = $this->factory->__fetch($template, $cache_id, $arrExtra);
         
-        if (config::get('logger.profiling'))
+        if (config::get('hathoora.logger.profiling'))
         {
             $this->arrDebug['name'] = $template;
             if ($cache_id)
@@ -229,6 +229,6 @@ class template
      */    
     public static function __callStatic($name, $args)
     {
-        return $this->factory->$name($args);
+        return self::$factory->$name($args);
     }
 }

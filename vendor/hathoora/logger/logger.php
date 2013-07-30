@@ -29,13 +29,14 @@ class logger
      *
      * @param string $level
      * @param string $message
+     * @return null
      */
     public static function log($level, $message)
     {
-        if (!config::get('logger.logging.enabled'))
-            return false;
+        if (!config::get('hathoora.logger.logging.enabled'))
+            return null;
         
-        $minLevel = config::get('logger.logging.level');
+        $minLevel = config::get('hathoora.logger.logging.level');
         if (!$minLevel)
             $minLevel = 'INFO';
         

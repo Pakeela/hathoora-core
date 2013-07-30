@@ -14,17 +14,21 @@ class serviceManager
     
     // for caching objects
     static $cachedObjects;
-    
+
     /**
      * Get the service
      *
      * @param string $key for which it is known for
      * @param array $arrService defined in services.ini
      * @param array $methodParams to pass to service
+     * @throws serviceNotReachable
+     * @return mixed|null
      */
     public static function get($key, $arrService, $methodParams = array())
     {
         $error = false;
+        $service = $classCacheHash = $reachable = null;
+
         if (!isset(self::$arrServices[$key]))
         {
             if (is_array($arrService))
@@ -164,7 +168,7 @@ class serviceManager
      * @param string $method name
      * @param string $params for method name
      *
-     * @return true (=== bool) when all good, else error string
+     * @return mixed|bool true (=== bool) when all good, else error string
      */
     private static function isServiceReachable($key, $class, $args, $method, $params)
     {
@@ -238,9 +242,9 @@ class serviceManager
                                                         'method' => 'getContainer'));
 
         // translation service?
-        if (registry::getConfig('hathoora.framework.translation.enabled'))
+        if (registry::getConfig('hathoora.translation.enabled'))
         {
-            logger::log(logger::LEVEL_DEBUG, 'Service "translator" has been added because of hathoora.framework.translation.enabled.');
+            logger::log(logger::LEVEL_DEBUG, 'Service "translator" has been added because of <i>hathoora.translation.enabled</i>.');
             registry::setConfig('services.translator', array(
                                                                 'class' => '\hathoora\translation\translator',
                                                                 'method' => 't',
@@ -249,9 +253,9 @@ class serviceManager
         }
         
         // translation service?
-        if (registry::getConfig('hathoora.framework.gulaboo.assets.enabled'))
+        if (registry::getConfig('hathoora.gulaboo.assets.enabled'))
         {
-            logger::log(logger::LEVEL_DEBUG, 'Service "assets" has been added because of hathoora.framework.gulaboo.assets.enabled.');
+            logger::log(logger::LEVEL_DEBUG, 'Service "assets" has been added because of <i>hathoora.gulaboo.assets.enabled</i>.');
             registry::setConfig('services.gulabooAssets', array(
                                                                 'class' => '\hathoora\gulaboo\assets',
                                                                 'calls' => array(

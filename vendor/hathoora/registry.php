@@ -57,7 +57,7 @@ class registry
      */
     public static function setConfig($key, $value)
     {
-        return self::setTypeValue($key, $value, 'hathooraConfig');
+        self::setTypeValue($key, $value, 'hathooraConfig');
     }
 
     /**
@@ -136,7 +136,7 @@ class registry
     {
         return self::getConfig('services');
     }
-    
+
     /**
      * Internal function for setting type's key which takes care of "." segmentation
      * e.g get(domain) would set (and overwrite) all things underneath it
@@ -144,7 +144,8 @@ class registry
      *
      * @param string $key variable name
      * @param string $value to store
-     * @param string $type (optional) of storage ex hathooraConfig etc..
+     * @param bool|string $type (optional) of storage ex hathooraConfig etc..
+     * @return void
      */
     private static function setTypeValue($key, $value, $type = false)
     {
@@ -229,7 +230,7 @@ class registry
         // @todo prevent overwriting specific types
         else 
             self::$storage[$key] =& $value;
-    }     
+    }
 
     /**
      * Internal function for getting type's key which takes care of "." segmentation
@@ -240,7 +241,7 @@ class registry
      * @param string $type (optional) of storage ex hathooraConfig etc..
      * @return mixed the value or else false
      */
-    private static function getTypeValue($key, $type = false)
+    private static function getTypeValue($key, $type = null)
     {
         $value = null;
         $found = false;

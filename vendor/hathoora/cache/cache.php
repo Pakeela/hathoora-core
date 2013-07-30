@@ -21,7 +21,7 @@ class cache
     protected $factory;
     
     /**
-     * container
+     * container \hathoora\container
      */
     private $container;
  
@@ -117,7 +117,7 @@ class cache
         static $i;
         $i++;
         
-        $profiling = config::get('logger.profiling');
+        $profiling = config::get('hathoora.logger.profiling');
         $arrDebug = array(
             'name' => current($args));
             

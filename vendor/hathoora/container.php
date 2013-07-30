@@ -16,6 +16,8 @@ class container
     
     /**
      * Getting container
+     *
+     * @return \hathoora\container
      */
     final public static function getContainer()
     {
@@ -24,6 +26,8 @@ class container
     
     /**
      * Returns instance of \hathoora\kernel
+     *
+     * @return \hathoora\kernel
      */
     final public static function getKernel()
     {
@@ -32,6 +36,8 @@ class container
     
     /**
      * Returns instance of \hathoora\observer
+     *
+     * @return \hathoora\observer
      */
     final public static function getObserver()
     {
@@ -40,6 +46,8 @@ class container
     
     /**
      * Returns instance of \hathoora\router\request
+     *
+     * @return \hathoora\router\request
      */
     final public static function getRouteRequest()
     {
@@ -48,6 +56,8 @@ class container
     
     /**
      * Returns instance of \hathoora\controller\base
+     *
+     * @return \hathoora\controller\base
      */
     final public static function getController()
     {
@@ -56,6 +66,8 @@ class container
     
     /**
      * Returns instance of \hathoora\http\response
+     *
+     * @return \hathoora\http\response
      */
     final public static function getResponse()
     {
@@ -64,6 +76,8 @@ class container
     
     /**
      * Returns instance of \hathoora\router\dispatcher
+     *
+     * @return \hathoora\router\dispatcher
      */
     final public static function getRouteDispatcher()
     {
@@ -72,6 +86,8 @@ class container
  
     /**
      * Get request object
+     *
+     * @return \hathoora\http\request
      */
     final public static function getRequest()
     {
@@ -92,12 +108,12 @@ class container
     /**
      * function for setting config
      *
-     * @param string $key variable name
+     * @param $name
      * @param mixed $value to be stored
      */
     final public static function setConfig($name, $value)
     {
-        return registry::setConfig($name, $value);
+        registry::setConfig($name, $value);
     }
 
     /**
