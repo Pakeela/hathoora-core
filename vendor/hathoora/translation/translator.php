@@ -34,7 +34,7 @@ class translator extends model
      */
     public function deTokenize($token, &$arrTokens)
     {
-        return \hathoora\utils::deTokenize($token, $arrTokens);
+        return \hathoora\helper\stringHelper::deTokenize($token, $arrTokens);
     }
 
     /**

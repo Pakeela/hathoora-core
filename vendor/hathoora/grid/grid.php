@@ -813,7 +813,7 @@ class grid extends container
      */
     public static function deTokenize($token, &$arrTokens)
     {
-        return \hathoora\utils::deTokenize($token, $arrTokens);
+        return \hathoora\helper\stringHelper::deTokenize($token, $arrTokens);
     }
     
     /**
