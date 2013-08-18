@@ -149,7 +149,7 @@ class templateStuob extends container implements templateInterface
      */
     public function __load($file, $vars = array())
     {
-        if (substr($file, 0, 1) == '/')
+        if (realpath($file))
             $path = $file;
         else
             $path = $this->template_dir . $file;
