@@ -69,7 +69,7 @@ class template
         
         // assign template and tpl dir
         $this->template = $template;
-        $this->template_dir = HATHOORA_APP_PATH . '/view/';
+        $this->template_dir = HATHOORA_APP_PATH . '/resources/templates/';
         $arrTemplateConfig  = array(
             'template_dir' => $this->template_dir
         );

@@ -58,14 +58,14 @@ hathooras:
             #failover: [\class, method]
             servers:
                 dbMaster1:
-                    dsn: mysqli://dbuser:dbpassword@dbhost:3306/dbname
+                    dsn: mysql://dbuser:dbpassword@dbhost:3306/dbname
                     role: master
                     allow_read: false
                     weight: 1
                     on_connect:
                         - SET NAMES utf8;
                 dbMaster2:
-                    dsn: mysqli://dbuser:dbpassword@dbhost:3306/dbname
+                    dsn: mysql://dbuser:dbpassword@dbhost:3306/dbname
                     role: master
                     read_only: true
                     weight: 2
@@ -73,9 +73,9 @@ hathooras:
                         - SET NAMES utf8;
                         - /* SQL COMMAND */;
                 dbSlave1:
-                    dsn: mysqli://dbuser:dbpassword@dbhost:3306/dbname
+                    dsn: mysql://dbuser:dbpassword@dbhost:3306/dbname
                     role: slave
                     weight: 1
 
         # simple dsn
-        db2: mysqli://dbuser:dbpassword@dbhost:3306/dbname
+        db2: mysql://dbuser:dbpassword@dbhost:3306/dbname

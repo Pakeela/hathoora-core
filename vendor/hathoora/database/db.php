@@ -223,7 +223,7 @@ class db
         {
             if (preg_match('/^(\w+):\/\/(\w+):(|\w+)@(.+?):(\d+)\/(.+?)$/', $dsn, $arrMatch))
             {
-                $driver = $arrMatch['1'];
+                $engine = $arrMatch['1'];
                 $host = $arrMatch['4'];
                 $port = $arrMatch['5'];
                 $user = $arrMatch['2'];
@@ -232,7 +232,7 @@ class db
                 $socket = null;
                 
                 // @todo: handle more db drivers
-                if ($driver == 'mysqli')
+                if ($engine == 'mysql')
                 {
                     try
                     {

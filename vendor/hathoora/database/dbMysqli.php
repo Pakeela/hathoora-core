@@ -7,7 +7,7 @@ namespace hathoora\database;
 class dbMysqli extends \Mysqli implements dbInterface
 {
     /**
-     * Connects to db 
+     * Connects to db
      *
      * @return mysqli object
      * @throws exception when unable to connect

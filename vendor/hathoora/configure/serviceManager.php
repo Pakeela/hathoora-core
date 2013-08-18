@@ -51,7 +51,7 @@ class serviceManager
                 $factory_method_args = isset($arrService['factory_method_args']) ? $arrService['factory_method_args'] : null;
                 // static services that are cached
                 $service_type = isset($arrService['type']) ? $arrService['type'] : null;
-                                
+
                 $classCached = null;                
                 // service is not factory
                 if (!$factory_service)
@@ -220,12 +220,12 @@ class serviceManager
     {
         // it is a service which has a format of @service@
         if (substr($str, 0, 1) == '@')
-            $val = registry::getService(substr($str, 1, -1));
+            $val =& registry::getService(substr($str, 1, -1));
         // its a config which has format of %config.name%
         else if (substr($str, 0, 1) == '%')
-            $val = registry::getConfig(substr($str, 1, -1));
+            $val =& registry::getConfig(substr($str, 1, -1));
         else
-            $val = $str;
+            $val =& $str;
             
         return $val;
     }

@@ -11,7 +11,8 @@ class grid extends container
      *
      * @param array $arrGridData
      * @param bool $return or echo
-     */
+    * @return string
+    */
     public static function renderGrid(&$arrGridData, $return = false)
     {
         $table_id = isset($arrGridData['table']['id']) ? $arrGridData['table']['id'] : 'htgrid_'. time() . rand(1,99999);
@@ -113,16 +114,17 @@ class grid extends container
     
         return $grid;
     }
-    
+
     /**
      * Run a sql statement
-     * 
+     *
+     * @param array $arrParams that have
      * $arrParams that have:
      *  dsn: which dsn to use
      *  sort: the field to sort on
      *  order: the order asc|desc
      *  start: the start of limit
-     * 
+     *
      * @todo complete this
      * @param bool $render
      * @return array|mixed
@@ -245,8 +247,18 @@ class grid extends container
                 {
                     foreach($dataFunctions as $dataFunction)
                     {
+                        $arrDataFunctionExtraParams = null;
+                        if (count($dataFunction) > 2)
+                            $arrDataFunctionExtraParams = array_pop($dataFunction);
                         if (is_callable($dataFunction))
-                            call_user_func_array($dataFunction, array(&$arrGridData['rows']));                    
+                        {
+                            $args = array();
+                            $args[0] =& $arrGridData['rows'];
+                            if (is_array($arrDataFunctionExtraParams))
+                                $args = array_merge($args, $arrDataFunctionExtraParams);
+
+                            call_user_func_array($dataFunction, $args);
+                        }
                     }
                 }                        
             }
@@ -709,6 +721,8 @@ class grid extends container
      * Helper function that parse $data['rows'] and returns pk ids or other mapping ids
      *
      * @param array $arrRows
+     * @param string $mapField $arrRows[$mapField] should have thie
+     * @param string $dontMapWhenFieldExists we will skip all rows that have $arrRows[$dontMapWhenFieldExists]
      * @param object $db to escape against
      * 
      * @return array containing
@@ -716,7 +730,7 @@ class grid extends container
      *      arrIds: if mapField == null then its keys of $arrRows, else it is the mapping b/w $mapFieldID and key
      *      strIds: is the db escaped, comma seperated, double quoted string ready to be used for sql 
      */
-    public static function getDataFunctionIds(&$arrRows, $mapField = null, $db = null)
+    public static function getDataFunctionIds(&$arrRows, $mapField = null, $dontMapWhenFieldExists = null, $db = null)
     {
         $arrMapping = array();
         $arrIds = array();
@@ -730,6 +744,9 @@ class grid extends container
                 {
                     if (isset($arrRow[$mapField]))
                     {
+                        if (isset($dontMapWhenFieldExists) && isset($arrRow[$dontMapWhenFieldExists]))
+                            continue;
+
                         $map_id = $arrRow[$mapField];
                         $arrMapping[$map_id][$id] = $id;
                     }
@@ -760,7 +777,7 @@ class grid extends container
      * @param array $arrResults sql results from $arrIds/$strIds usually. The key of this array is the $mapField from getDataFunctionIds()
      * @param array $arrMapping from getDataFunctionIds()
      */
-    public static function getDataFunctionMergeMapping(&$arrRows, &$arrResults, &$arrMapping)
+    public static function getDataFunctionMergeMapping(&$arrRows, &$arrResults, &$arrMapping, $arrRowsAdditonalKey = null)
     {
         if (is_array($arrResults))
         {
@@ -772,7 +789,10 @@ class grid extends container
                     {
                         if (isset($arrRows[$rowId]))
                         {
-                            $arrRows[$rowId] = array_merge($arrResult, $arrRows[$rowId]);
+                            if (isset($arrRowsAdditonalKey))
+                                $arrRows[$rowId][$arrRowsAdditonalKey] = $arrResult;
+                            else
+                                $arrRows[$rowId] = array_merge($arrResult, $arrRows[$rowId]);
                         }
                     }
                 }
@@ -810,6 +830,7 @@ class grid extends container
      *
      * @param string $token that we want to get the value for ex: {{name}}
      * @param array $arrTokens that has a key of token ex: 'name' = 'xyz'
+     * @return string
      */
     public static function deTokenize($token, &$arrTokens)
     {
