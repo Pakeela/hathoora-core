@@ -11,7 +11,7 @@ class serviceManager
 {
     // storage for static services
     static $arrServices;
-    
+
     // for caching objects
     static $cachedObjects;
 
@@ -52,7 +52,7 @@ class serviceManager
                 // static services that are cached
                 $service_type = isset($arrService['type']) ? $arrService['type'] : null;
 
-                $classCached = null;                
+                $classCached = null;
                 // service is not factory
                 if (!$factory_service)
                 {
@@ -70,7 +70,7 @@ class serviceManager
                 else if ($factory_service)
                 {
                     $classCacheHash = $key . '::'. $factory_service .'__' . $factory_method . md5(json_encode($factory_method_args));
-                    
+
                     if (isset(self::$cachedObjects[$classCacheHash]))
                     {
                         $service = self::$cachedObjects[$classCacheHash];
@@ -79,14 +79,14 @@ class serviceManager
                     else
                         $reachable = true;
                 }
-                    
+
                 if ($reachable === true)
                 {
                     if (!$factory_service)
                     {
                         // @todo pass $args (and also pass via ref)
                         $service = new $class();
-                    
+
                         // any calls to make?
                         if (!$classCached && is_array($calls) && count($calls))
                         {
@@ -100,23 +100,23 @@ class serviceManager
                                         $arrCallParams[$i] = self::getParamsValue($callParam);
                                     }
                                 }
-                                
+
                                 // @todo error check
                                 call_user_func_array(array(
-                                                            $service,
-                                                            $call), 
-                                                            $arrCallParams);                        
+                                        $service,
+                                        $call),
+                                    $arrCallParams);
                             }
                         }
-                        
+
                         self::$cachedObjects[$classCacheHash] = $service; // store to internal caching
-                        
+
                         if ($method)
                         {
                             $service = call_user_func_array(array(
-                                                            $service,
-                                                            $method), 
-                                                            $params);
+                                    $service,
+                                    $method),
+                                $params);
                         }
                     }
                     else if ($factory_service)
@@ -132,16 +132,16 @@ class serviceManager
                                 foreach ($factory_method_args as $i => $arg)
                                     $factory_method_args[$i] = self::getParamsValue($arg);
                             }
-                            
+
                             $service = call_user_func_array(array(
-                                                                $service,
-                                                                $factory_method), 
-                                                                $factory_method_args);
+                                    $service,
+                                    $factory_method),
+                                $factory_method_args);
                         }
                     }
-                    
+
                     if ($service_type == 'static')
-                       self::$arrServices[$key] = $service;
+                        self::$arrServices[$key] = $service;
                 }
                 // set the error
                 else
@@ -151,14 +151,14 @@ class serviceManager
         else
             $service = self::$arrServices[$key];
 
-        
+
         // throw exception for services not found..
         if ($error)
             throw new serviceNotReachable($error);
-        
+
         return $service;
     }
-    
+
     /**
      * Checks to see if a service exists (instantiable, callable etc..)
      *
@@ -174,7 +174,7 @@ class serviceManager
     {
         $error = false;
         $errorMsg = null;
-        
+
         if ($class)
         {
             $instantiable = false;
@@ -183,17 +183,17 @@ class serviceManager
                 $instantiable = $reflectionClass->IsInstantiable();
             }
             catch (\ReflectionException $e)
-            { 
+            {
                 $errorMsg = $e->getMessage();
             }
-            
+
             if ($instantiable)
             {
                 if ($method)
                 {
                     $callable = is_callable(array(
-                                                $class, 
-                                                $method));                     
+                        $class,
+                        $method));
                     if (!$callable)
                         $error = 'Service method for '. $key .' ('. $method .'()) is not callable.';
                 }
@@ -203,13 +203,13 @@ class serviceManager
         }
         else
             $error = 'Service class for '. $key .' is not reachable. Please make you have entered the class name correctly. '. $errorMsg;
-            
+
         if (!$error)
             return true;
-            
+
         return $error;
     }
-    
+
     /**
      * A function that returns appropriate value of params
      * a service is @service@
@@ -220,16 +220,16 @@ class serviceManager
     {
         // it is a service which has a format of @service@
         if (substr($str, 0, 1) == '@')
-            $val =& registry::getService(substr($str, 1, -1));
+            $val = registry::getService(substr($str, 1, -1));
         // its a config which has format of %config.name%
         else if (substr($str, 0, 1) == '%')
-            $val =& registry::getConfig(substr($str, 1, -1));
+            $val = registry::getConfig(substr($str, 1, -1));
         else
             $val =& $str;
-            
+
         return $val;
     }
-    
+
     /**
      * There are certain services that are added only when configuration is enabled
      * ex translation service is enabled only when translation.enabled = 1
@@ -238,29 +238,29 @@ class serviceManager
     {
         // container
         registry::setConfig('services.container', array(
-                                                        'class' => '\hathoora\container',
-                                                        'method' => 'getContainer'));
+            'class' => '\hathoora\container',
+            'method' => 'getContainer'));
 
         // translation service?
         if (registry::getConfig('hathoora.translation.enabled'))
         {
             logger::log(logger::LEVEL_DEBUG, 'Service "translator" has been added because of <i>hathoora.translation.enabled</i>.');
             registry::setConfig('services.translator', array(
-                                                                'class' => '\hathoora\translation\translator',
-                                                                'method' => 't',
-                                                                'calls' => array(
-                                                                                    'setContainer' => array('@container@'))));
+                'class' => '\hathoora\translation\translator',
+                'method' => 't',
+                'calls' => array(
+                    'setContainer' => array('@container@'))));
         }
-        
+
         // translation service?
         if (registry::getConfig('hathoora.gulaboo.assets.enabled'))
         {
             logger::log(logger::LEVEL_DEBUG, 'Service "assets" has been added because of <i>hathoora.gulaboo.assets.enabled</i>.');
             registry::setConfig('services.gulabooAssets', array(
-                                                                'class' => '\hathoora\gulaboo\assets',
-                                                                'calls' => array(
-                                                                                    //'setContainer' => array('@container@')
-                                                                                )));
-        }        
+                'class' => '\hathoora\gulaboo\assets',
+                'calls' => array(
+                    //'setContainer' => array('@container@')
+                )));
+        }
     }
 }
