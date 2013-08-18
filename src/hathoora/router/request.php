@@ -10,20 +10,20 @@ class request
 {
     /**
      * A url signature thats used for determining app
-     * Its basically $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] 
+     * Its basically $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
      */
     private $urlSignature = '';
-    
+
     /**
-      * Stores current app being used
-      */
+     * Stores current app being used
+     */
     public $app = 'site';
-    
+
     /**
-      * Stores apps namespace
-      */
+     * Stores apps namespace
+     */
     public $appNamespace = null;
-    
+
     /**
      * Stores app directory path
      */
@@ -35,23 +35,23 @@ class request
     public $appHasDispatcher = null;
 
     /**
-      * Stores current URI
-      */
+     * Stores current URI
+     */
     public $uri;
 
     /**
      * Stores base url (including app) without http(s): prefix
      */
     public $baseURS;
-    
+
     /**
      * stores URI by removing MVC domain base
      */
     public $routeURI;
-    
+
     /**
      * Stores route.php config
-     */ 
+     */
     private $routeConfig;
 
     /**
@@ -77,14 +77,14 @@ class request
         $this->uri = $this->removeTrailingSlash(parse_url($req_url, PHP_URL_PATH));
         $this->routeURI = $this->removeTrailingSlash($this->uri);
         $this->baseURS = '//' . $this->removeTrailingSlash($_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']);
-        
+
         $this->urlSignature = $_SERVER['HTTP_HOST'] . parse_url($org_req_url, PHP_URL_PATH);
 
         $this->routeConfig = new config(array(
-                                              HATHOORA_ROOTPATH . 'boot/config/app.yml',
-                                              HATHOORA_ROOTPATH . 'boot/config/app_'. HATHOORA_ENV .'.yml'));
+            HATHOORA_ROOTPATH . 'boot/config/app.yml',
+            HATHOORA_ROOTPATH . 'boot/config/app_'. HATHOORA_ENV .'.yml'));
     }
-    
+
     /**
      * This function reads configuration (from config/route.php) to fignure out mvc domain.
      * First match wins.
@@ -92,15 +92,15 @@ class request
     public function getApp()
     {
         static $appMatched;
-        
+
         if ($appMatched && $this->app)
             return $this->app;
-        
+
         $arrApps = $this->routeConfig->get('app');
         $appMatched = false;
-        
+
         if (is_array($arrApps))
-        {   
+        {
             foreach($arrApps as $app => $regex)
             {
                 $appNamespace = '\app\\' . $app;
@@ -113,21 +113,22 @@ class request
                     $directory = !empty($arrApp['directory']) ? $arrApp['directory'] : null;
                     if (!empty($arrApp['default']))
                         $regex = '([a-z0-9\-]+\.)*[a-z0-9]+\.[a-z]+';
-                    
+
                     if (!empty($arrApp['dispatcher']) && is_array($arrApp['dispatcher']))
                         $appHasDispatcher = $arrApp['dispatcher'];
-                    
+
                     // add app to namespace and rememver 'autoloader' was already included in front end controller
                     if ($directory)
                     {
                         $appNamespace = '\\'. $app;
                         $path = HATHOORA_ROOTPATH . 'app/' . $directory .'/';
                         $appDirectoryPath = $path . $app . '/';
-                        spl_autoload_register(array(new \autoloader($app, $path), 'loadClass'));
+
+                        \hathoora\autoload::register($app, $path);
                     }
                 }
-                
-                
+
+
                 if ($regex && empty($appMatched) && preg_match('%'. $regex .'%i', $this->urlSignature, $arrMatch))
                 {
                     $appMatched = true;
@@ -135,7 +136,7 @@ class request
                     $this->appNamespace = $appNamespace;
                     $this->appDirectoryPath = $appDirectoryPath;
                     $this->appHasDispatcher = $appHasDispatcher;
-                    
+
                     // seperate domain from $_SERVER['HTTP_HOST']
                     $this->routeURI = str_replace($arrMatch[0], '', $this->urlSignature);
                     $this->baseURS = str_replace($this->routeURI, '', $this->baseURS);
@@ -145,25 +146,25 @@ class request
 
         return $this->app;
     }
-    
+
     /**
      * Return app config as defined in app.yml file
      */
     public function getAppConfig($app = null)
     {
         $arrAppInfo = null;
-        
+
         if (!$app)
             $app = $this->app;
-            
+
         $arrApps = $this->routeConfig->get('app');
-    
+
         if (isset($arrApps[$app]))
-           $arrAppInfo = $arrApps[$app];
-        
+            $arrAppInfo = $arrApps[$app];
+
         return $arrAppInfo;
     }
-    
+
     /**
      * Returns directory path for a given app
      */
@@ -172,7 +173,7 @@ class request
         if ($app)
         {
             $arrApps = $this->routeConfig->get('app');
-        
+
             if (isset($arrApps[$app]) && ($arrApp = $arrApps[$app]))
             {
                 if (isset($arrApp['directory']) && ($directory = $arrApp['directory']))
@@ -183,7 +184,7 @@ class request
         }
         else
             $path = $this->appDirectoryPath;
-            
+
         return $path;
     }
 
@@ -197,7 +198,7 @@ class request
         $dispatcher = new dispatcher($this);
         return $dispatcher->dispatch();
     }
-    
+
     /**
      * Removes trailing slashes
      */
