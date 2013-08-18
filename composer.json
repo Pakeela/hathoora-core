@@ -1,9 +1,9 @@
 {
-    "name": "hathoora/hathoora",
+    "name": "hathoora/hathoora-core",
     "type": "library",
     "description": "The Hathoora Framework",
     "keywords": ["framework"],
-    "homepage": "http://root.pk/hathoora",
+    "homepage": "http://hathoora.root.pk",
     "license": "MIT",
     "authors": [
         {
