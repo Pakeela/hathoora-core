@@ -54,7 +54,7 @@ class template
             );
         }
         
-        if (!config::has('template.engine.name'))
+        if (!config::has('hathoora.template.engine.name'))
             $engine = 'Stuob';
         else 
             $engine = config::get('hathoora.template.engine.name');
@@ -62,7 +62,7 @@ class template
         $thClass =  '\hathoora\template\template'. $engine;
         
         // has custom template class
-        if (config::has('template.engine.class'))
+        if (config::has('hathoora.template.engine.class'))
         {
             $thClass =  config::get('hathoora.template.engine.class');
         }

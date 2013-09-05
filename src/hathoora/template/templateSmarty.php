@@ -8,8 +8,9 @@ use hathoora\container,
 /**
  * Smarty template
  *
+ * @requires smarty/smarty package
  */
-class templateSmarty extends \Smarty\Smarty implements templateInterface
+class templateSmarty extends \Smarty implements templateInterface
 {
     /**
      * constructor
