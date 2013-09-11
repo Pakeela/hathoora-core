@@ -13,17 +13,17 @@ class template
      * Stores global vars
      */
     static protected $globalVars;
-    
+
     /**
      * template handler, the real template class which implements hathooraTemplateInterface
      */
     protected $factory;
-    
+
     /**
      * template
      */
     protected $template;
-    
+
     /**
      * arrExtra
      */
@@ -33,12 +33,12 @@ class template
      * arrExtra
      */
     public $arrExtra;
-    
+
     /**
      * For profling
      */
     private $arrDebug = array();
-    
+
     /**
      * Contructor
      *
@@ -53,27 +53,27 @@ class template
                 'start' => microtime()
             );
         }
-        
+
         if (!config::has('hathoora.template.engine.name'))
             $engine = 'Stuob';
-        else 
+        else
             $engine = config::get('hathoora.template.engine.name');
-        
+
         $thClass =  '\hathoora\template\template'. $engine;
-        
+
         // has custom template class
         if (config::has('hathoora.template.engine.class'))
         {
             $thClass =  config::get('hathoora.template.engine.class');
         }
-        
+
         // assign template and tpl dir
         $this->template = $template;
         $this->template_dir = HATHOORA_APP_PATH . '/resources/templates/';
         $arrTemplateConfig  = array(
             'template_dir' => $this->template_dir
         );
-        
+
         // pass params to config
         $arrConfig = config::get('hathoora.template.' . $engine);
         if (is_array($arrConfig))
@@ -83,7 +83,7 @@ class template
         }
 
         $this->factory = new $thClass($arrTemplateConfig);
-        
+
         // assign local and variable globals
         $vars = (array) $vars + (array) self::$globalVars;
         if (count($vars) >= 1)
@@ -94,7 +94,7 @@ class template
             }
         }
     }
-    
+
     /**
      * Assign variable to be used in template
      *
@@ -104,26 +104,26 @@ class template
     public function assign($name, $value, $scopeGlobal = false)
     {
         $this->factory->__assign($name, $value);
-        
+
         if ($scopeGlobal)
             self::$globalVars[$name] = $value;
     }
 
     /**
-    * Assign variable, by reference, to be used in template
-    *
-    * @param string $name of the variable
-    * @param mixed $value of the variable
-    * @param bool $scopeGlobal (optional) to assign a variable globally
-    */
+     * Assign variable, by reference, to be used in template
+     *
+     * @param string $name of the variable
+     * @param mixed $value of the variable
+     * @param bool $scopeGlobal (optional) to assign a variable globally
+     */
     public function assignByRef($name, &$value, $scopeGlobal = false)
     {
         $this->factory->__assignByRef($name, $value);
-        
+
         if ($scopeGlobal)
-            self::$globalVars[$name] =& $value;        
+            self::$globalVars[$name] =& $value;
     }
-    
+
     /**
      * Append variable to be used in template
      *
@@ -134,10 +134,10 @@ class template
     {
         $this->factory->__append($name, $value);
     }
-    
+
     /**
      * a wrapper - fetches a rendered template
-     * 
+     *
      * @return string rendered template output
      */
     public function fetch()
@@ -150,9 +150,9 @@ class template
             $cached = $this->factory->__isCached($template, $cache_id);
             $this->arrDebug['cached'] = $cached == true ? 1 : 0;
         }
-        
+
         $return = $this->factory->__fetch($template, $cache_id, $arrExtra);
-        
+
         if (config::get('hathoora.logger.profiling'))
         {
             $this->arrDebug['name'] = $template;
@@ -161,16 +161,16 @@ class template
             $this->arrDebug['end'] = microtime();
             profiler::profile('template', false, $this->arrDebug);
         }
-        
+
         // log it
         logger::log(logger::LEVEL_INFO, 'Template ('. $template .') fetched.');
-        
+
         return $return;
     }
-  
+
     /**
      * a wrapper - displays a Smarty template
-     * 
+     *
      * @param mixed $cache_id cache id to be used with this template
      * @param array $arrExtra for additional requirements
      * @result outputs the rendered template
@@ -179,8 +179,8 @@ class template
     {
         $return = $this->fetch();
         echo $return;
-    } 
-    
+    }
+
     /**
      * magic function for accessing template handler properties
      */
@@ -188,7 +188,7 @@ class template
     {
         return $this->factory->$name;
     }
-    
+
     /**
      * magic function for setting template handler properties
      */
@@ -196,10 +196,10 @@ class template
     {
         if (!is_object($this->factory))
             $this->factory = new \stdClass;
-        
+
         return $this->factory->$name = $value;
     }
-    
+
     /**
      * magic function for checking isset template handler properties
      */
@@ -214,8 +214,8 @@ class template
     public function __unset($name)
     {
         unset($this->factory->$name);
-    }    
-    
+    }
+
     /**
      * magic function for accessing template handler methods
      */
@@ -226,7 +226,7 @@ class template
 
     /**
      * magic function for accessing static template handler methods
-     */    
+     */
     public static function __callStatic($name, $args)
     {
         return self::$factory->$name($args);

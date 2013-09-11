@@ -40,7 +40,7 @@ class profiler
      */
     public function benchmark($name)
     {
-        if (!config::get('hathoora.logger.profiling'))
+        if (!config::get('hathoora.logger.profiling.enabled'))
             return null;
             
         $arr =& self::$arrProfile['benchmark'];
@@ -61,7 +61,7 @@ class profiler
      */
     public static function profile($type, $name = null, $arr)
     {
-        if (!config::get('hathoora.logger.profiling'))
+        if (!config::get('hathoora.logger.profiling.enabled'))
             return null;
         
         if ($name)
@@ -80,7 +80,7 @@ class profiler
      */
     public static function modify($type, $name, $arr)
     {
-        if (!config::get('hathoora.logger.profiling'))
+        if (!config::get('hathoora.logger.profiling.enabled'))
             return null;
         
         if (!$name && !is_array($arr))

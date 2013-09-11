@@ -345,7 +345,7 @@ class db
     private function initializeDebug($comment = null)
     {
         // for debugging
-        if (config::get('hathoora.logger.profiling'))
+        if (config::get('hathoora.logger.profiling.enabled'))
         {
             $this->arrDebug = array();
             $this->arrDebug['dsn_name'] = $this->dbName;
@@ -385,7 +385,7 @@ class db
         if (isset($this->error['number']))
             $hasError = true;
         
-        if (config::get('hathoora.logger.profiling') && ($this->query || !empty($this->arrDebug['comment'])))
+        if (config::get('hathoora.logger.profiling.enabled') && ($this->query || !empty($this->arrDebug['comment'])))
         {
             $this->arrDebug['end_query'] = microtime();
             $this->arrDebug['query'] = $this->query;

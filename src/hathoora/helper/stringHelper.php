@@ -128,7 +128,7 @@ namespace hathoora\helper
          * @return mixed|string
          * @url: http://www.php.net/manual/en/function.strip-tags.php#93567
          */
-        function stripTheseTags($str, $tags)
+        public static function stripTheseTags($str, $tags)
         {
             if(!is_array($tags))
             {

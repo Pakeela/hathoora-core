@@ -117,7 +117,7 @@ class cache
         static $i;
         $i++;
 
-        $profiling = config::get('hathoora.logger.profiling');
+        $profiling = config::get('hathoora.logger.profiling.enabled');
         $arrDebug = array(
             'name' => current($args));
 

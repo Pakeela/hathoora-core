@@ -10,22 +10,22 @@ class request
 {
     // stores cookie object
     protected $cookieData;
-    
+
     // stores $_GET data
     protected $getData;
-    
+
     // stores $_POST data
-    protected $postData;    
+    protected $postData;
 
     // stores $_FILES data
-    protected $filesData;   
-    
+    protected $filesData;
+
     // stores $_SERVER data
-    protected $serverData;    
-    
+    protected $serverData;
+
     // stores $_SESSION data
     protected $sessionData;
-    
+
     /**
      * Constructor
      */
@@ -38,7 +38,7 @@ class request
         $this->cookieData =& $_COOKIE;
         $this->filesData =& $_FILES;
     }
-    
+
     /**
      * Make the request object and returns
      */
@@ -53,12 +53,12 @@ class request
             return registry::get('hathooraRequestObject');
         }
     }
-    
+
     /**
      * Sets\gets POST param
-     * 
+     *
      * @param string $name to get POST value, if this is not passed then returns POST array
-     * @param string $value to store
+     * @param string $value to store when not set (default value)
      */
     public function postParam($name = null, $value = null, $unset = false)
     {
@@ -71,7 +71,7 @@ class request
             }
             else
             {
-                if (isset($value))
+                if (isset($value) && !isset($this->getData[$name]))
                     return $this->postData[$name] = $value;
                 else
                 {
@@ -85,12 +85,12 @@ class request
         else
             return $this->postData;
     }
-    
+
     /**
      * Sets\gets GET param
-     * 
+     *
      * @param string $name to get GET value, if this is not passed then returns GET array
-     * @param string $value to store
+     * @param string $value to store when not set (default value)
      */
     public function getParam($name = null, $value = null, $unset = false)
     {
@@ -103,7 +103,7 @@ class request
             }
             else
             {
-                if (isset($value))
+                if (isset($value) && !isset($this->getData[$name]))
                     return $this->getData[$name] = $value;
                 else
                 {
@@ -120,7 +120,7 @@ class request
 
     /**
      * gets SERVER param
-     * 
+     *
      * @param string $name to get GET value, if this is not passed then returns GET array
      * @param string $value to store
      */
@@ -129,7 +129,7 @@ class request
         if ($name)
         {
             $name = strtoupper($name);
-            
+
             if (isset($this->serverData[$name]))
                 return $this->serverData[$name];
             else
@@ -138,10 +138,10 @@ class request
         else
             return $this->serverData;
     }
-    
+
     /**
      * Gets FILES param
-     * 
+     *
      * @param string $name to get GET value, if this is not passed then returns GET array
      * @param string $value to store
      */
@@ -157,10 +157,10 @@ class request
         else
             return $this->filesData;
     }
-    
+
     /**
      * Sets\gets SESSION param
-     * 
+     *
      * @param string $name to get SESSION value, if this is not passed then returns SESSION array
      * @param string $value to store
      * @param string $unset the value
@@ -190,7 +190,7 @@ class request
         else
             return $this->sessionData;
     }
-    
+
     /**
      * Set\Gets a cookie. Silently does nothing if headers have already been sent.
      *
@@ -204,7 +204,7 @@ class request
     public function cookieParam($name, $value = null, $expiry = 31536000, $path = '/', $domain = false)
     {
         $retval = false;
-        
+
         // only return $name's value
         if (!isset($value))
             $retval = (isset($this->cookieData[$name]) ? $this->cookieData[$name] : false);
@@ -226,7 +226,7 @@ class request
                     $this->cookieData[$name] = $value;
             }
         }
-        
+
         return $retval;
     }
 
@@ -244,14 +244,14 @@ class request
         $retval = false;
         if (!headers_sent())
         {
-          if ($domain === false)
-            $domain = $this->serverParam('HTTP_HOST');
-          $retval = setcookie($name, '', time() - 3600, $path, $domain);
+            if ($domain === false)
+                $domain = $this->serverParam('HTTP_HOST');
+            $retval = setcookie($name, '', time() - 3600, $path, $domain);
 
-          if ($remove_from_global)
-            unset($this->cookieData[$name]);
+            if ($remove_from_global)
+                unset($this->cookieData[$name]);
         }
-        
+
         return $retval;
     }
 
@@ -262,7 +262,7 @@ class request
     {
         if (isset($this->serverData['REQUEST_METHOD']))
             return $this->serverData['REQUEST_METHOD'];
-        
+
         return false;
     }
 
@@ -273,16 +273,16 @@ class request
      */
     public function getBaseUrl()
     {
-    
+
     }
-    
+
     /**
      * Returns IP address of  the user by taking proxy in consideration
      */
     public function guessRealIPAddress()
-    {   
+    {
         $ip = null;
-        
+
         if (isset($_SERVER['HTTP_X_CLIENT_IP']))
             $ip = $_SERVER['HTTP_X_CLIENT_IP'];
         else if (isset($_SERVER['HTTP_CLIENT_IP']))
@@ -297,10 +297,10 @@ class request
             $ip = $_SERVER['HTTP_FORWARDED'];
         else
             $ip = $_SERVER['REMOTE_ADDR'];
-            
+
         return $ip;
     }
-    
+
     /**
      * Returns true if its an ajax call
      */
@@ -308,7 +308,7 @@ class request
     {
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
             return true;
-            
+
         return false;
     }
 }
