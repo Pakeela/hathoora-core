@@ -123,9 +123,15 @@ class request
                         $appNamespace = '\\'. $app;
                         $path = HATHOORA_ROOTPATH . 'app/' . $directory .'/';
                         $appDirectoryPath = $path . $app . '/';
-
-                        \hathoora\autoload::register($app, $path);
                     }
+                    else
+                    {
+                        $appNamespace = '\\'. $app;
+                        $path = HATHOORA_ROOTPATH . 'app/';
+                        $appDirectoryPath = $path . $app . '/';
+                    }
+
+                    \hathoora\autoload::register($app, $path);
                 }
 
 

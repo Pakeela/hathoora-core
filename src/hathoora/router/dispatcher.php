@@ -24,21 +24,21 @@ class dispatcher
         $this->appHasDispatcher =& $request->appHasDispatcher;
         $this->baseURS =& $request->baseURS;
         $this->htRO = array();
-        
+
         // @todo check using HTTP_HTRO as well
         if (!empty($_SERVER['REDIRECT_HTRO']))
         {
             $this->htRO = array(
-                            'controller' => isset($_SERVER['REDIRECT_HTRO_CONTROLLER']) ? $_SERVER['REDIRECT_HTRO_CONTROLLER'] : null,
-                            'action' => isset($_SERVER['REDIRECT_HTRO_ACTION']) ? $_SERVER['REDIRECT_HTRO_ACTION'] : null,
-                            'params' => isset($_SERVER['REDIRECT_HTRO_PARAMS']) ? $_SERVER['REDIRECT_HTRO_PARAMS'] : null
-                    );
+                'controller' => isset($_SERVER['REDIRECT_HTRO_CONTROLLER']) ? $_SERVER['REDIRECT_HTRO_CONTROLLER'] : null,
+                'action' => isset($_SERVER['REDIRECT_HTRO_ACTION']) ? $_SERVER['REDIRECT_HTRO_ACTION'] : null,
+                'params' => isset($_SERVER['REDIRECT_HTRO_PARAMS']) ? $_SERVER['REDIRECT_HTRO_PARAMS'] : null
+            );
         }
-            
+
     }
-    
+
     /**
-     * Dispatch request and execute controller 
+     * Dispatch request and execute controller
      *
      * @return \hathoora\router\dispatcher class
      */
@@ -47,13 +47,13 @@ class dispatcher
         // take multi apps in consideration and figure out root URI only when app != site
         $adjustedURI = $this->routeURI;
         $arrPossibleRoute = false;
-        
+
         // Hathoora routing override in .htacces
         if (count($this->htRO))
         {
             $controller = $this->htRO['controller'];
-            $action = $this->htRO['action'];
-            $arrParams = $this->htRO['params'];        
+            $action = $this->getActionName($this->htRO['action']);
+            $arrParams = $this->htRO['params'];
         }
         else
         {
@@ -66,45 +66,45 @@ class dispatcher
                 $method =  $this->appHasDispatcher['method'];
                 $callable = is_callable(array($class, $method));
                 #sqlLoadClassTest(false);
-                
+
                 if ($callable)
                 {
                     logger::log(logger::LEVEL_DEBUG, 'Calling App dispatcher ('. print_r($this->appHasDispatcher, true) .')...');
-                    
+
                     $obj = new $class();
 
                     $arrPossibleRoute = call_user_func_array(array(
-                                                                $obj,
-                                                                $method
-                                                             ), 
-                                                             array(container::getContainer()));
-                    
+                            $obj,
+                            $method
+                        ),
+                        array(container::getContainer()));
+
                     if (!is_array($arrPossibleRoute))
                         logger::log(logger::LEVEL_INFO, 'App dispatcher did not return valid response ('. print_r($arrPossibleRoute, true) .')');
                 }
                 else
                     logger::log(logger::LEVEL_ERROR, 'App dispatcher ('. print_r($this->appHasDispatcher, true) .') is not callable.');
             }
-            
+
             if (is_array($arrPossibleRoute))
             {
                 $controller = !empty($arrPossibleRoute['controller']) ? $arrPossibleRoute['controller'] : null;
-                $action = !empty($arrPossibleRoute['action']) ? $arrPossibleRoute['action'] : null;
+                $action = !empty($arrPossibleRoute['action']) ? $this->getActionName($arrPossibleRoute['action']) : null;
                 $arrParams = !empty($arrPossibleRoute['params']) ? $arrPossibleRoute['params'] : array();
-            }        
+            }
             else
             {
                 #0) build controller, action & params from the path URL
                 $arrParams = explode('/', $adjustedURI);
                 array_shift($arrParams); // remove the first useless key
 
-                $controller = strtolower(array_shift($arrParams));  
+                $controller = strtolower(array_shift($arrParams));
                 if (!$controller)   // default controller name
-                    $controller = 'default';
-                $action = $this->getActionName(strtolower(array_shift($arrParams))); 
+                $controller = 'default';
+                $action = $this->getActionName(strtolower(array_shift($arrParams)));
                 if (!$action)       // default action name
-                    $action = 'index';
-                    
+                $action = 'index';
+
                 $controller .= 'Controller';
             }
         }
@@ -116,7 +116,7 @@ class dispatcher
 
         return $this;
     }
-    
+
     /**
      * We want to use camelCase action names in controller classes, but be
      * able to access them via '-' seperated SEO names
@@ -141,7 +141,7 @@ class dispatcher
         }
         else
             $actionName = $str;
-            
+
         return $actionName;
-    }    
+    }
 }
