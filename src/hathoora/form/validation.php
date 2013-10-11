@@ -109,7 +109,11 @@ class validation
                         if ($inputSrtLen == 0)
                         {
                             $ruleSetHasError = true;
-                            $ruleSetError = 'validation_field_value_empty';
+                            // get error message:
+                            if (isset($arrRuleSet['message']))
+                                $ruleSetError = $arrRuleSet['message'];
+                            else
+                                $ruleSetError = 'validation_field_value_empty';
                         }
 
                         if (!$ruleSetHasError)

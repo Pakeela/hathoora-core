@@ -81,7 +81,6 @@ class request
         $this->urlSignature = $_SERVER['HTTP_HOST'] . parse_url($org_req_url, PHP_URL_PATH);
 
         $this->routeConfig = new config(array(
-            HATHOORA_ROOTPATH . 'boot/config/app.yml',
             HATHOORA_ROOTPATH . 'boot/config/app_'. HATHOORA_ENV .'.yml'));
     }
 
