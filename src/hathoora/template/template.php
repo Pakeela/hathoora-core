@@ -47,7 +47,7 @@ class template
      */
     public function __construct($template, $vars = array())
     {
-        if (config::get('hathoora.logger.profiling'))
+        if (config::get('hathoora.logger.profiling.enabled'))
         {
             $this->arrDebug = array(
                 'start' => microtime()
@@ -145,7 +145,7 @@ class template
         $template = $this->template;
         $cache_id = $this->cache_id;
         $arrExtra = $this->arrExtra;
-        if (config::get('hathoora.logger.profiling'))
+        if (config::get('hathoora.logger.profiling.enabled'))
         {
             $cached = $this->factory->__isCached($template, $cache_id);
             $this->arrDebug['cached'] = $cached == true ? 1 : 0;
@@ -153,7 +153,7 @@ class template
 
         $return = $this->factory->__fetch($template, $cache_id, $arrExtra);
 
-        if (config::get('hathoora.logger.profiling'))
+        if (config::get('hathoora.logger.profiling.enabled'))
         {
             $this->arrDebug['name'] = $template;
             if ($cache_id)
