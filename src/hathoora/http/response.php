@@ -7,18 +7,18 @@ class response
      * stores content that we will send out to the browser
      */
     private $content;
-    
+
     private $status;
-    
+
     // stores redirct info
     private $redirectURL;
-    
+
     // stores header
     private $arrHeaders;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param mixed $content string or \hathoora\template\template object
      * @param string $arrHeaders
      * @param string $status http status
@@ -32,17 +32,25 @@ class response
             else
                 $this->content = $content;
             $this->setStatus($status);
-            
+
             // default headers
             if (!$arrHeaders || !count($arrHeaders))
                 $this->setDefaultHeaders();
-            
+
             $this->setHeaders($arrHeaders);
         }
-        
+
         return $this;
     }
-    
+
+    /**
+     * set content
+     */
+    public function setContent($content)
+    {
+        $this->content = $content;
+    }
+
     /**
      * render response and send it to client
      */
@@ -58,7 +66,7 @@ class response
     {
         return $this->content;
     }
-    
+
     /**
      * Redirect
      *
@@ -70,7 +78,7 @@ class response
         $this->redirectURL = $url;
         $this->setStatus($code);
     }
-    
+
     /**
      * Forward with a flash message
      *
@@ -85,8 +93,8 @@ class response
 
     /**
      * Set flash message
-     * 
-     * @param string $message 
+     *
+     * @param string $message
      * @param string $type (info|warning|error|success)
      */
     public function setFlash($message, $type = 'info')
@@ -99,11 +107,11 @@ class response
             $httpFlash[$type] = $message;
         $request->sessionParam('httpFlash', $httpFlash);
     }
-    
+
     /**
      * Removes all due flash messages.
      */
-    public function removeFlash() 
+    public function removeFlash()
     {
         $request = request::make();
         $request->sessionParam('httpFlash', null, true);
@@ -114,13 +122,13 @@ class response
      *
      * @param bool $remove, when true will remove flash message from session
      */
-    public function getFlash($remove = true) 
+    public function getFlash($remove = true)
     {
         $request = request::make();
         $flash = $request->sessionParam('httpFlash');
         if ($remove)
             $this->removeFlash();
-            
+
         return $flash;
     }
 
@@ -133,20 +141,20 @@ class response
     {
         // redirect
         if (isset($this->redirectURL))
-            $this->setHeader('Location', urldecode($this->redirectURL)); 
-            
+            $this->setHeader('Location', urldecode($this->redirectURL));
+
         $this->sendHeaders();
-        
+
         // echo
         if (!isset($this->redirectURL))
             $this->render();
         else
         {
-            if ($sessionWriteClose) 
+            if ($sessionWriteClose)
                 session_write_close();
         }
     }
-    
+
     /**
      * this function sends headers at the time of send()
      */
@@ -166,7 +174,7 @@ class response
             }
         }
     }
-    
+
     /**
      * Public function for resetting headers
      */
@@ -175,7 +183,7 @@ class response
         $this->arrHeaders = array();
         $this->setStatus(0);
     }
-    
+
     /**
      * Sets various cache related headers
      *
@@ -195,10 +203,10 @@ class response
         $s_maxage = isset($arrParams['s_maxage']) ? $arrParams['s_maxage'] : null;
         $max_age = isset($arrParams['max_age']) ? $arrParams['max_age'] : null;
         $expires = isset($arrParams['expires']) ? $arrParams['expires'] : null;
-        
+
         if ($etag)
             $this->setHeader('Etag', $etag);
-        
+
         if ($last_modified)
             $this->setHeader('Last-Modified', $last_modified);
 
@@ -208,12 +216,12 @@ class response
             $cacheControl .= ($public ? 'public, ' : null);
             $cacheControl .= ($s_maxage ? 's-maxage='. $s_maxage.', ' : null);
             $this->setHeader('Cache-Control', $cacheControl);
-        }        
-        
+        }
+
         if ($expires)
-            $this->setHeader('Expires', $expires);        
+            $this->setHeader('Expires', $expires);
     }
-    
+
     /**
      * Set response status
      */
@@ -221,7 +229,7 @@ class response
     {
         $this->status = trim($code);
     }
-    
+
     /**
      * Get response status
      */
@@ -229,10 +237,10 @@ class response
     {
         return $this->status;
     }
-    
+
     /**
-     * Sets header 
-     * 
+     * Sets header
+     *
      * @param array $arrHeaders
      */
     private function setHeaders($arrHeaders)
@@ -245,7 +253,7 @@ class response
             }
         }
     }
-    
+
     /**
      * Set default headers
      */
@@ -253,26 +261,26 @@ class response
     {
         $this->setHeader('Content-Type', 'text/html; charset=UTF-8');
     }
-    
+
     /**
      * set header
-     * 
-     * @param string $name specifies the name of the header 
+     *
+     * @param string $name specifies the name of the header
      * @param string $value for header
      */
     public function setHeader($name, $value = null)
-    {   
+    {
         // content type needs to be 'Content-Type'
         if (strtolower($name) == 'content-type')
             $name = 'Content-Type';
-            
+
         $this->arrHeaders[$name] = $value;
     }
 
     /**
      * Get header
-     * 
-     * @param string $name specifies the name of the header to read; if empty or omitted, 
+     *
+     * @param string $name specifies the name of the header to read; if empty or omitted,
      * an associative array with all headers will be returned
      */
     public function getHeader($name = null)
@@ -284,7 +292,7 @@ class response
             if (isset($this->arrHeaders[$name]))
                 return $this->arrHeaders[$name];
         }
-        
+
         return false;
     }
 }

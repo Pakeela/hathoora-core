@@ -98,10 +98,10 @@ class dispatcher
                 $arrParams = explode('/', $adjustedURI);
                 array_shift($arrParams); // remove the first useless key
 
-                $controller = strtolower(array_shift($arrParams));
+                $controller = array_shift($arrParams);
                 if (!$controller)   // default controller name
                 $controller = 'default';
-                $action = $this->getActionName(strtolower(array_shift($arrParams)));
+                $action = $this->getActionName(array_shift($arrParams));
                 if (!$action)       // default action name
                 $action = 'index';
 
