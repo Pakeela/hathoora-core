@@ -15,14 +15,14 @@ class modelSAR extends container
         '_primaryKey' => 1,
         '_fields' => 1
     );
-    
+
     /**
      * constructor
-     * 
+     *
      * @param mixed
      *      if array then we assign properties to the object
      */
-    public function __construct($args = null) 
+    public function __construct($args = null)
     {
         if (is_array($args))
         {
@@ -32,45 +32,48 @@ class modelSAR extends container
             }
         }
     }
-    
+
     /**
      * Helper function for getting db connection
-     * 
+     *
      * @param string $dsn_name defined in the config
-     * @param bool $reBuild when true 
+     * @param bool $reBuild when true
      * @return hathoora\database\db class
      */
     final public static function getDBConnection($dsn_name = 'default', $reBuild = false)
     {
         return dbAdapter::getConnection($dsn_name, $reBuild);
     }
-    
+
     /**
      * Stores a new object in database
-     * 
+     *
      * @param bool $dontExcludeEmptyProperties
-     * @param bool $throwException throw exception on errors     
+     * @param bool $throwException throw exception on errors
      * @return mixed
      *      - when $throwException = false and successful insert, it returns the ID of record created
      *        it also sets PK with ID
      *      - when $throwException = true, throws modelSARException upon error
-     *      - 
+     *      -
      */
     final public function save($dontExcludeEmptyProperties = false, $throwException = false)
     {
         $sql = $this->getSARFieldsSetQuery($dontExcludeEmptyProperties, $throwException);
         $result = null;
-        
+
         if ($sql)
         {
-            $db = $this->getDBConnection();
+            if (method_exists($this, 'customDBConnection'))
+                $db = $this->customDBConnection();
+            else
+                $db = $this->getDBConnection();
             $tableName = $this->_tableName;
             $pk = $this->_primaryKey;
-            
+
             $isAdd = false;
             if (empty($this->$pk))
                 $isAdd = true;
-            
+
             // build SQL
             if ($isAdd)
             {
@@ -86,11 +89,11 @@ class modelSAR extends container
                 UPDATE `'. $db->escape($tableName) .'`
                 SET ' . $sql .'
                 WHERE `'. $db->escape($pk) .'` = "'. $db->escape($this->$pk) .'" LIMIT 1';
-                $result = $db->query($sql);            
+                $result = $db->query($sql);
                 if ($result)
                     $result = $this->$pk;
             }
-                
+
             if ($result)
             {
                 $this->$pk = $result;
@@ -109,12 +112,12 @@ class modelSAR extends container
 
         return $result;
     }
-    
+
     /**
      * Converts an object to array
      * @param bool $dontExcludeEmptyProperties when true and an object property doesn't exist than don't use it
      * @param bool $includeNonObjectFields when true would also convert fields that are not assigned to $_fields array
-     */    
+     */
     final public function toArray($dontExcludeEmptyProperties = true, $includeNonObjectFields = false)
     {
         return $this->getSARFields($dontExcludeEmptyProperties, $includeNonObjectFields);
@@ -130,7 +133,7 @@ class modelSAR extends container
     {
         $arrEntityFields = null;
         $arrFields = isset($this->_fields) ? $this->_fields : null;
-        
+
         if ($includeNonObjectFields)
         {
             $cloneThis = clone $this;
@@ -141,7 +144,7 @@ class modelSAR extends container
                 if (isset($arrEntityFields[$rProperty]))
                     unset($arrEntityFields[$rProperty]);
             }
-            
+
             if (is_array($arrEntityFields))
             {
                 foreach($arrEntityFields as $field => $arrField)
@@ -157,17 +160,17 @@ class modelSAR extends container
             {
                 if (!is_array($arrField))
                     $field = $arrField;
-                    
+
                 if (isset($this->$field))
                     $arrEntityFields[$field] = $this->$field;
                 else if (!isset($this->$field) && $dontExcludeEmptyProperties != false)
                     $arrEntityFields[$field] = null;
             }
         }
-        
+
         return $arrEntityFields;
     }
-    
+
     /**
      * Returns the set query for obect
      *
@@ -179,11 +182,11 @@ class modelSAR extends container
     {
         $sql = $error = null;
         $db = $this->getDBConnection();
-        
+
         // no db connection, throw exception
         if ($throwException && !$db)
             $error = 'Unable to get database connection.';
-        
+
         if (($arrProperties = get_object_vars($this)) && $db && !$error)
         {
             // reservered properties are set?
@@ -196,8 +199,8 @@ class modelSAR extends container
                 }
             }
             if ($error)
-                $error = 'SAR Reserved properties are missing in '. get_class($this) .': '. $error;            
-            
+                $error = 'SAR Reserved properties are missing in '. get_class($this) .': '. $error;
+
             if (!$error)
             {
                 $arrFields = $this->getSARFields($dontExcludeEmptyProperties);
@@ -208,14 +211,14 @@ class modelSAR extends container
                 }
             }
         }
-        
+
         // throw exception
         if ($throwException && $error)
             throw new modelSARException($error);
 
         return $sql;
     }
-    
+
     /**
      * Returns the save type of entity that is being added
      */
@@ -226,7 +229,7 @@ class modelSAR extends container
         else
             return 'edit';
     }
-    
+
     /**
      * magic function for accessing properties
      */
@@ -234,7 +237,7 @@ class modelSAR extends container
     {
         return isset($this->$name) ? $this->$name : null;
     }
-    
+
     /**
      * magic function for setting properties
      */
@@ -242,10 +245,10 @@ class modelSAR extends container
     {
         if (isset($this->arrReservedProperties[$name]))
             throw new modelSARException('You cannot overwrite reserved properties.');
-        
+
         return $this->$name = $value;
     }
-    
+
     /**
      * magic function for checking isset properties
      */
@@ -260,26 +263,26 @@ class modelSAR extends container
     final public function __unset($name)
     {
         if (isset($this->arrReservedProperties[$name]))
-            throw new modelSARException('You cannot overwrite reserved properties.');    
+            throw new modelSARException('You cannot overwrite reserved properties.');
         unset($this->$name);
-    }    
-    
+    }
+
     /**
      * magic function for accessing static methods
-     */    
+     */
     final public static function __callStatic($name, $args)
-    {  
+    {
         $db = self::getDBConnection();
         if (!$db)
             return false;
 
         if (substr($name, 0, 5) === 'fetch')
-        {  
+        {
             $return = null;
             $class = get_called_class();
             $classObj = new $class;
             $table = $db->escape($classObj->_tableName);
-            
+
             $arrParams = @array_pop($args);
             /**
              * we run a limited version of sqlRun()
@@ -290,7 +293,7 @@ class modelSAR extends container
                 $selectField = grid::sqlBuildSelect($arrParams['selectField']);
             else
                 $selectField = '*';
-            
+
             $arrParams['skipTotal'] = true;
             $arrParams['queryRow'] = '
                 SELECT '. $selectField .'
@@ -298,7 +301,7 @@ class modelSAR extends container
                 (isset($arrParams['joinRow']) ? grid::sqlBuildJoin($arrParams['joinRow']) : null) .
                 (isset($arrParams['whereRow']) ? grid::sqlBuildWhere($arrParams['whereRow']) : null);
             $arrResult = grid::sqlRun($arrParams);
-            
+
             if (is_array($arrResult))
             {
                 if (count($arrResult) == 1)
@@ -306,7 +309,7 @@ class modelSAR extends container
                 // @todo: support multiple results
             }
         }
-        
+
         return $return;
     }
 }

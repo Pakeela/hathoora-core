@@ -484,7 +484,7 @@ class db
      * @param string $query
      * @param array $args (optional)
      * @param bool $isMultiQuery
-     * @return mixed|object dbResult object successful, else returns false
+     * @return mixed|dbResult
      */
     public function query($query, $args = null, $isMultiQuery = false)
     {
