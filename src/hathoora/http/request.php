@@ -311,4 +311,14 @@ class request
 
         return false;
     }
+
+    /**
+     * Returns true if it is a command line request
+     */
+    public function isCLI()
+    {
+        $sapi = php_sapi_name();
+
+        return ($sapi == 'cli') ? true: false;
+    }
 }

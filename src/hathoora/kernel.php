@@ -137,19 +137,34 @@ namespace hathoora
             #set_error_handler(array($errorHandler, 'customErrorHandler'));
             #set_exception_handler(array($errorHandler, 'customExceptionHandler'));
 
-            $sapi_name = php_sapi_name();
+            $app = null;
+            $sapi = php_sapi_name();
 
             // need to figure out app to load appropriate config files
-            if ($sapi_name != 'cli')
+            if ($sapi == 'cli')
             {
-                $this->routeRequest = new routeRequest();
-                $app = $this->routeRequest->getApp();
-                $appPath = $this->routeRequest->appDirectoryPath;
+                if (!empty($_SERVER['argv']) && isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == '-r' &&
+                    isset($_SERVER['argv'][2]))
+                {
+                    $url = $_SERVER['argv'][2];
+                    $arrUrl = parse_url($url);
+
+                    // set $_SERVER to make things work..
+                    $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+                    $_SERVER['HTTP_HOST'] = $_SERVER['SERVER_NAME'] = isset($arrUrl['host']) ? $arrUrl['host'] : null;
+                    $_SERVER['QUERY_STRING'] =  isset($arrUrl['query']) ? $arrUrl['query'] : null;
+                    $_SERVER['REQUEST_URI'] = isset($arrUrl['path']) ? $arrUrl['path'] : null;
+                    $_SERVER['REQUEST_URI'] .= $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : null;
+                    if ($_SERVER['QUERY_STRING'])
+                        parse_str($_SERVER['QUERY_STRING'], $_GET);
+                }
+                else
+                    die('Invalid command line, format is index.php -r http://www.example.com/controller/method/param1?var1=1' . "\n");
             }
-            else
-            {
-                $app = null;
-            }
+
+            $this->routeRequest = new routeRequest();
+            $app = $this->routeRequest->getApp();
+            $appPath = $this->routeRequest->appDirectoryPath;
 
             define('HATHOORA_APP', $app);
             define('HATHOORA_APP_PATH', $appPath);
@@ -157,7 +172,7 @@ namespace hathoora
             registry::setByRef('hathooraKernel', $this);
 
             new config(array(
-                            HATHOORA_APP_PATH .'/config/config_'. HATHOORA_ENV .'.yml'));
+                HATHOORA_APP_PATH .'/config/config_'. HATHOORA_ENV .'.yml'));
 
             // load configuration dependent hathoora services
             serviceManager::loadDefaultServicesFromConfig();
@@ -217,16 +232,9 @@ namespace hathoora
 
             if (!headers_sent())
                 $this->response->send();
+            else if (php_sapi_name() == 'cli')
+                $this->response->send();
 
-            // kernel terminate
-            $this->addKernelEvent('terminate');
-        }
-
-        /**
-         * After bootstraping, this function does the rest of the work for command line
-         */
-        public function bootstrapCLI()
-        {
             // kernel terminate
             $this->addKernelEvent('terminate');
         }
