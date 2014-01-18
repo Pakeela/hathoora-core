@@ -47,6 +47,6 @@ class dbResult
      */
     public function lastInsertId()
     {
-        return $this->db->getlastInsertId();
+        return $this->factory->getlastInsertId();
     }
 }
