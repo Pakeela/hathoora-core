@@ -17,7 +17,7 @@ class base
     private $controllerNameSpaceClass;
     /* store tpl variables that should be available to all templates */
     public $_tpl_vars;
-    
+
     /**
      * constructor
      */
@@ -29,8 +29,9 @@ class base
         $this->action = $dispatcher->action;
         $this->params = $dispatcher->params;
         $this->controllerNameSpaceClass = $this->getControllerNameSpaceClass($this->controller);
+        $this->isCRUD = $dispatcher->isCRUD;
     }
-    
+
     /**
      * Same as isCallable, but uses current objects properties
      */
@@ -38,11 +39,11 @@ class base
     {
         return $this->isCallable($this->controllerNameSpaceClass, $this->action);
     }
-    
+
     /**
      * Check if a controller::action is callable
      * Only public functions of valid controllers are callable
-     * 
+     *
      * @param string $controllerClassName the crontroller class ex: siteControllerDefault
      * @param string $action name of action
      * @return bool
@@ -52,13 +53,13 @@ class base
         // @todo check file before loading..
         //sqlLoadClassTest(true);
         $callable = is_callable(array(
-                                    $controller, 
-                                    $action));     
+            $controller,
+            $action));
         //sqlLoadClassTest(false);
-        
+
         return $callable;
     }
-    
+
     /**
      * Same as invoke, but uses current objects properties
      */
@@ -73,16 +74,16 @@ class base
     public function invoke($controllerNameSpaceClass, $action = 'index', $params = array())
     {
         logger::log(logger::LEVEL_DEBUG, 'Calling controller ('. $controllerNameSpaceClass .'::'. $action .') with following params<br/> <pre>' . print_r($params, true) .'</pre>');
-        
+
         $controllerObject = new $controllerNameSpaceClass();
 
         return call_user_func_array(array(
-                                        $controllerObject,
-                                        $action
-                                    ), 
-                                    $params);    
+                $controllerObject,
+                $action
+            ),
+            $params);
     }
-    
+
     /**
      * Returns current controller namespace
      */
@@ -90,7 +91,7 @@ class base
     {
         return $this->controllerNameSpaceClass;
     }
-    
+
     /**
      * Returns current controller
      */
@@ -98,7 +99,7 @@ class base
     {
         return $this->controller;
     }
-    
+
     /**
      * Returns current method
      */
@@ -113,7 +114,7 @@ class base
     public function getControllerActionParams()
     {
         return $this->params;
-    }    
+    }
 
     /**
      * Returns namespace class of controller

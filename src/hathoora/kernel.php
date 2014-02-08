@@ -14,7 +14,6 @@ namespace hathoora
         hathoora\configure\serviceManager,
         hathoora\registry,
         hathoora\router\request as routeRequest,
-        hathoora\router\route,
         hathoora\http\response,
         hathoora\controller\base as controller,
         hathoora\logger\logger,
@@ -223,9 +222,14 @@ namespace hathoora
                 $this->response = $this->addKernelEvent('route_unreachable', true);
             }
 
-            // issue a 404 response when no route found
+            // issue a 404 response when no route found and 400 for CRUD 
             if (!is_object($this->response))
-                $this->response = new response('<h1>404 - Not Found</h1>', false, 404);
+            {
+                if ($this->controller->isCRUD)
+                    $this->response = new response('400 Bad Request', false, 400);
+                else
+                    $this->response = new response('<h1>404 - Not Found</h1>', false, 404);
+            }
 
             // kernel response ready and about to be sent out
             $this->addKernelEvent('response');

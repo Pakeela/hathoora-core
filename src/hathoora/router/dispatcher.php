@@ -24,6 +24,7 @@ class dispatcher
         $this->appHasDispatcher =& $request->appHasDispatcher;
         $this->baseURS =& $request->baseURS;
         $this->htRO = array();
+        $this->isCRUD = false;
 
         // @todo check using HTTP_HTRO as well
         if (!empty($_SERVER['REDIRECT_HTRO']))
@@ -101,11 +102,39 @@ class dispatcher
                 $controller = array_shift($arrParams);
                 if (!$controller)   // default controller name
                 $controller = 'default';
-                $action = $this->getActionName(array_shift($arrParams));
-                if (!$action)       // default action name
-                $action = 'index';
-
                 $controller .= 'Controller';
+
+                // is crud?
+                $this->isCRUD = is_subclass_of($this->appNamespace .'\controller\\' . $controller, '\hathoora\controller\CRUD');
+
+                if (!$this->isCRUD)
+                {
+                    $action = $this->getActionName(array_shift($arrParams));
+                    if (!$action)       // default action name
+                    $action = 'index';
+                }
+                // for CRUD manipulate action..
+                else
+                {
+                    $this->isCRUD = $_SERVER['REQUEST_METHOD'];
+                    if (count($arrParams) == 1 && empty($arrParams[0]))
+                        $arrParams = array();
+
+                    if ($this->isCRUD == 'GET')
+                    {
+                        $action = 'collection';
+                        if (count($arrParams))
+                            $action = 'read';
+                    }
+                    else if ($this->isCRUD == 'POST')
+                        $action = 'create';
+                    else if ($this->isCRUD == 'PUT')
+                        $action = 'update';
+                    else if ($this->isCRUD == 'DELETE')
+                        $action = 'delete';
+                    else
+                        $action = strtolower($this->isCRUD);
+                }
             }
         }
 
