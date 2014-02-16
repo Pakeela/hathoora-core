@@ -17,7 +17,7 @@ class assets extends container
     {
         //$this->container =& $container;
     }
-    
+
     /**
      * This function retrivers an app asset
      */
@@ -26,7 +26,7 @@ class assets extends container
         static $arrAppPathHash;
 
         $appDirectory = null;
-	
+
         if (empty($app))
             $app = HATHOORA_APP;
 
@@ -38,23 +38,21 @@ class assets extends container
 
             $arrAppPathHash[$app] = $appDirectory . '::'. $app . '/';
         }
-        
+
         $appPathHash = $arrAppPathHash[$app];
-        
-        $url = $this->getConfig('assets.urls.http');
+
+        $url = $this->getConfig('hathoora.gulaboo.assets.urls.http');
         $url .= '/_assets/_app/' . $appPathHash;
-        $url .=  $path . '?' . $this->getConfig('assets.version');
-        
-        return $url;    
+        $url .=  $path . '?' . $this->getConfig('hathoora.gulaboo.assets.version');
+
+        return $url;
     }
-    
+
     public function getAsset($path, $versioning = true)
     {
-        $url = $this->getConfig('assets.urls.http');
-        //$url = null; //'http://media01.mine.pk';
-        $url .=  $path . '?' . $this->getConfig('assets.version');
-        //$url .= time();
-        
+        $url = $this->getConfig('hathoora.gulaboo.assets.urls.http');
+        $url .=  $path . '?' . $this->getConfig('hathoora.gulaboo.assets.version');
+
         return $url;
     }
 }
