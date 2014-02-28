@@ -64,6 +64,11 @@ class db
     protected $comment;
 
     /**
+     * eat up execption and fail silently
+     */
+    protected $silent;
+    
+    /**
      * dsn has onconnect sql commands to tun
      */
     protected $onConnectExecuting;
@@ -323,6 +328,17 @@ class db
         return $this;
     }
     
+    /**
+     * silently fail on exception
+     */
+    public function silent()
+    {
+        $this->silent = true;
+        
+        return $this;
+    }
+    
+    
     ##############################################################
     ##
     ##   Factory operations
@@ -369,6 +385,7 @@ class db
      */
     private function finalize($returnStatus = false)
     {   
+        $return = true;
         // reset dsn & comment so we pick per query bases
         $this->userSpecifiedDsn = $this->comment = null;
         
@@ -409,11 +426,14 @@ class db
         if ($hasError)
         {
             $this->errorfactory();
-            if (!$returnStatus)
+            // throw exception
+            if (!$returnStatus && $this->silent != true)
                 throw new \Exception($this->error['message'], $this->error['number']); 
             else
-                return false;
+                $return = false;
+                
         }
+        $this->silent = false;
         
         return true;
     }
