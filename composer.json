@@ -1,9 +1,9 @@
 {
     "name": "hathoora/core",
     "type": "library",
-    "description": "The Hathoora Framework",
+    "description": "Hathoora PHP Framework Core",
     "keywords": ["framework"],
-    "homepage": "http://hathoora.root.pk",
+    "homepage": "http://labs.pakeela.com/hathoora",
     "license": "MIT",
     "authors": [
         {

@@ -101,7 +101,7 @@ class dispatcher
 
                 $controller = array_shift($arrParams);
                 if (!$controller)   // default controller name
-                $controller = 'default';
+                    $controller = 'default';
                 $controller .= 'Controller';
 
                 // is crud?
