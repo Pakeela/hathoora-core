@@ -27,10 +27,7 @@ class response
     {
         if ($content)
         {
-            if (is_object($content) && $content instanceof \hathoora\template\template)
-                $this->content = $content->fetch();
-            else
-                $this->content = $content;
+            $this->setContent($content);
             $this->setStatus($status);
 
             // default headers
@@ -48,7 +45,10 @@ class response
      */
     public function setContent($content)
     {
-        $this->content = $content;
+        if (is_object($content) && $content instanceof \hathoora\template\template)
+            $this->content = $content->fetch();
+        else
+            $this->content = $content;
     }
 
     /**
