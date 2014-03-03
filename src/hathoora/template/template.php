@@ -25,7 +25,7 @@ class template
     protected $template;
 
     /**
-     * arrExtra
+     * cache_id
      */
     public $cache_id;
 
@@ -136,6 +136,42 @@ class template
     }
 
     /**
+     * Sets cache id
+     * @param $id
+     */
+    public function setCacheId($id)
+    {
+        $this->cache_id = $id;
+    }
+
+    /**
+     * Sets caching
+     * @param $bool
+     */
+    public function setCaching($bool)
+    {
+        $this->factory->caching = $bool;
+    }
+
+    /**
+     * Sets cache time of factory
+     * @param $time
+     */
+    public function setCacheTime($time)
+    {
+        $this->factory->cache_time = $time;
+    }
+
+    /**
+     * Sets cache dir of factory
+     * @param $dir
+     */
+    public function setCacheDir($dir)
+    {
+        $this->factory->cache_dir = $dir;
+    }
+
+    /**
      * a wrapper - fetches a rendered template
      *
      * @return string rendered template output
@@ -157,7 +193,7 @@ class template
         {
             $this->arrDebug['name'] = $template;
             if ($cache_id)
-                $this->arrDebug['name'] = $template . ' <em>('. $cache_id .')</em>';
+                $this->arrDebug['name'] = $template . ' <em>(cache id: '. $cache_id .')</em>';
             $this->arrDebug['end'] = microtime();
             profiler::profile('template', false, $this->arrDebug);
         }
@@ -166,6 +202,17 @@ class template
         logger::log(logger::LEVEL_INFO, 'Template ('. $template .') fetched.');
 
         return $return;
+    }
+
+    /**
+     * Check if template is cached
+     */
+    public function isCached()
+    {
+        $template = $this->template;
+        $group = null; // for future
+
+        return $this->factory->__isCached($template, $this->cache_id, $group);
     }
 
     /**
