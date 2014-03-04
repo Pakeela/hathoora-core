@@ -1,6 +1,8 @@
 <?php
 namespace hathoora\form;
 
+use hathoora\container;
+
 class validation
 {
     /**
@@ -14,10 +16,10 @@ class validation
      * @param arr $matchAgainst usually the user submitted form against whom we are checking, can also be an object
      * @return mixed returns true when no errors, returns an array on errors when has errors
      */
-    public static function validate($arrValidations, &$matchAgainst)
+    public static function validate($arrValidations, &$matchAgainst, $doTrim = true, $useTranslator = false)
     {
         $arrErrors = array();
-        
+
         if (is_array($matchAgainst))
             $arrForm =& $matchAgainst;
         // when it is an object and subclass of modelSAR
@@ -38,7 +40,9 @@ class validation
                         if (!isset($arrForm[$field]))
                             $arrForm[$field] = null;
 
-                        call_user_func_array($arrFilter, array($arrForm[$field]));
+                        $_returnValue = call_user_func_array($arrFilter, array($arrForm[$field], &$arrForm));
+                        if ($_returnValue != null)
+                            $arrForm[$field] = $_returnValue;
                     }
         
                     // update arrForm
@@ -60,19 +64,22 @@ class validation
                 // if there is no validation array then no need fo check
                 if (!isset($arrValidations[$field]) || !is_array($arrValidations[$field]))
                     continue;
-                
-                // always trim the input value
-                if (is_array($arrForm[$field]))
+
+                if ($doTrim)
                 {
-                    // @todo array walk trim
-                    // $arrForm[$field] = array_walk_recursive($arrForm[$field], 'trim');
+                    // always trim the input value
+                    if (is_array($arrForm[$field]))
+                    {
+                        // @todo array walk trim
+                        // $arrForm[$field] = array_walk_recursive($arrForm[$field], 'trim');
+                    }
+                    else if (is_object($arrForm[$field]))
+                    {
+                        //@todo object walk trim
+                    }
+                    else
+                        $arrForm[$field] = @trim($arrForm[$field]);
                 }
-                else if (is_object($arrForm[$field]))
-                { 
-                    //@todo object walk trim
-                }
-                else
-                    $arrForm[$field] = @trim($arrForm[$field]);
 
                 $input = $arrForm[$field];
                 
@@ -111,9 +118,18 @@ class validation
                             $ruleSetHasError = true;
                             // get error message:
                             if (isset($arrRuleSet['message']))
+                            {
                                 $ruleSetError = $arrRuleSet['message'];
+                                if ($useTranslator && container::hasService('translator'))
+                                    $ruleSetError =  container::getService('translator', array($ruleSetError, array('field' => $field)));
+                            }
                             else
-                                $ruleSetError = 'validation_field_value_empty';
+                            {
+                                if ($useTranslator && container::hasService('translator'))
+                                    $arrErrors[$field] =  container::getService('translator', array('validation_field_value_empty', array('field' => $field)));
+                                else
+                                    $ruleSetError = container::getConfig('hathoora.validation.messages.validation_field_value_empty');
+                            }
                         }
 
                         if (!$ruleSetHasError)
@@ -155,14 +171,29 @@ class validation
                                     $ruleSetHasError = true;
                                     
                                     if (isset($arrRuleSet['message']))
+                                    {
                                         $ruleSetError = $arrRuleSet['message'];
+
+                                        if ($useTranslator && container::hasService('translator'))
+                                            $ruleSetError =  container::getService('translator', array($ruleSetError, array('field' => $field)));
+                                    }
                                 }
                             }
                         }
                         
                         // has errors but no error emssage
                         if ($ruleSetHasError)
-                            $arrErrors[$field] =  $ruleSetError ? : 'validation_field_general_error';
+                        {
+                            if ($ruleSetError)
+                                $arrErrors[$field] =  $ruleSetError;
+                            else
+                            {
+                                if ($useTranslator && container::hasService('translator'))
+                                    $arrErrors[$field] =  container::getService('translator', array($ruleSetError, array('field' => $field)));
+                                else
+                                    container::getConfig('hathoora.validation.messages.validation_field_general_error');
+                            }
+                        }
                     }
                 }
             }
@@ -170,7 +201,10 @@ class validation
         else
         {
             // consider error
-            $arrErrors = array('validation_empty_form_submitted_error');
+            if ($useTranslator && container::hasService('translator'))
+                $arrErrors = array(container::getService('translator', array('validation_empty_form_submitted_error')));
+            else
+                $arrErrors = array(container::getConfig('hathoora.validation.messages.validation_empty_form_submitted_error'));
         }
             
         if (count($arrErrors))
