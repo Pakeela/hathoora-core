@@ -85,6 +85,18 @@ namespace hathoora
         }
 
         /**
+         *  Remove listener
+         *
+         * @param string $eventName
+         * @param string $observerName for this event
+         */
+        public function removeListener($eventName, $observerName)
+        {
+            if (isset($this->arrEvents[$eventName]) && isset($this->arrEvents[$eventName]['observers'][$observerName]))
+                unset($this->arrEvents[$eventName]['observers'][$observerName]);
+        }
+
+        /**
          * Add listeners defined in config so that can be notified when events are triggered
          */
         public function addEventListenersFromConfig()
