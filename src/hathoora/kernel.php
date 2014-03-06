@@ -219,7 +219,19 @@ namespace hathoora
                 logger::log(logger::LEVEL_ERROR, $this->controller->getControllerNamespace().'->'.$this->controller->getControllerActionName().' not found.');
 
                 // fire kernel.route_unreachable event
-                $this->response = $this->addKernelEvent('route_unreachable', true);
+                $arrUnReachable = $this->addKernelEvent('route_unreachable', true);
+                if (is_array($arrUnReachable))
+                {
+                    foreach($arrUnReachable as $_observerName => $observerResponse)
+                    {
+                        if (is_object($observerResponse) && ($observerResponse instanceof response))
+                        {
+                            $this->response = $observerResponse;
+                            break;
+                        }
+                    }
+                }
+
             }
 
             // issue a 404 response when no route found and 400 for CRUD 

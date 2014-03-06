@@ -21,6 +21,8 @@ namespace hathoora
          */
         public function addEvent($eventName, &$subject, $returnResult = false)
         {
+            $arrResults = array();
+
             $this->arrEvents[$eventName]['name'] = $eventName;
             $this->arrEvents[$eventName]['subject'] =& $subject;
 
@@ -45,16 +47,20 @@ namespace hathoora
                         #sqlLoadClassTest(false);
                         logger::log(logger::LEVEL_DEBUG, 'Event ' . $eventName .'->' . $observerName .' has been notified.');
                         $classObj = new $class();
-                        $result = $classObj->$method($subject);
 
                         if ($returnResult)
-                            return $result;
+                            $arrResults[$observerName] = $classObj->$method($subject);
+                        else
+                            $classObj->$method($subject);
                     }
                     else
                         logger::log(logger::LEVEL_DEBUG, 'Event ' . $eventName .'->' . $observerName .'->'. $method .' is not callable.');
                     #sqlLoadClassTest(false);
                 }
             }
+
+            if ($returnResult)
+                return $arrResults;
         }
 
         /**
