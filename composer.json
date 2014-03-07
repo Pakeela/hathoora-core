@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Hathoora PHP Framework Core",
     "keywords": ["framework"],
-    "homepage": "http://labs.pakeela.com/hathoora",
+    "homepage": "http://hathoora.org",
     "license": "MIT",
     "authors": [
         {
