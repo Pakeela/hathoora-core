@@ -26,16 +26,15 @@ class response
     public function __construct($content = false, $arrHeaders = array(), $status = 200)
     {
         if ($content)
-        {
             $this->setContent($content);
-            $this->setStatus($status);
 
-            // default headers
-            if (!$arrHeaders || !count($arrHeaders))
-                $this->setDefaultHeaders();
+        $this->setStatus($status);
 
-            $this->setHeaders($arrHeaders);
-        }
+        // default headers
+        if (!$arrHeaders || !count($arrHeaders))
+            $this->setDefaultHeaders();
+
+        $this->setHeaders($arrHeaders);
 
         return $this;
     }

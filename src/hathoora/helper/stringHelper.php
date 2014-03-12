@@ -1,7 +1,6 @@
 <?php
 namespace hathoora\helper
 {
-
     /**
      * A collection of string helpers
      */
@@ -17,12 +16,47 @@ namespace hathoora\helper
         public static function deTokenize($token, &$arrTokens)
         {
             $value = $token;
+
+            // @todo figure out filters (and its params) in same regex
             if (is_array($arrTokens) && preg_match_all('/\{\{(.+?)\}\}/', $token, $arrMatch))
             {
                 foreach ($arrMatch[1] as $token)
                 {
+                    // has callbacks?
+                    $arrFilters = explode('|', $token);
+                    $newToken = array_shift($arrFilters);
+                    if (count($arrFilters))
+                    {
+                        $value = str_replace('{{'. $token .'}}', '{{' . $newToken .'}}', $value);
+                        $token = $newToken;
+                    }
+
                     if (isset($arrTokens[$token]))
-                        $value = str_replace('{{'. $token .'}}', $arrTokens[$token], $value);
+                    {
+                        $tokenValue = $arrTokens[$token];
+
+                        // filers to apply?
+                        if (count($arrFilters))
+                        {
+                            foreach($arrFilters as $filter)
+                            {
+                                // @todo more regex? need to figure out all in one regex...
+                                // has filter params
+                                if (preg_match('/^(.+?)\(\s{0,}(.+?)\s{0,}\)$/', $filter, $arrMatch))
+                                {
+                                    $filterParams = trim(array_pop($arrMatch));
+                                    $filter = array_pop($arrMatch);
+                                    $arrFilterParams = explode(',', $filterParams);
+                                    array_unshift($arrFilterParams, $tokenValue);
+                                    $tokenValue = call_user_func_array(array(__NAMESPACE__ . '\stringDetokenizerFilters', $filter), $arrFilterParams);
+                                }
+                                else
+                                    $tokenValue = stringDetokenizerFilters::$filter($tokenValue);
+                            }
+                        }
+
+                        $value = str_replace('{{'. $token .'}}', $tokenValue, $value);
+                    }
                 }
             }
             else if (isset($arrTokens[$value]))

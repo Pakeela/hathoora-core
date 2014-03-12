@@ -30,7 +30,7 @@ namespace hathoora\logger\webprofiler
                 return;
 
             // skip webprofiler for specified POST params
-            if ($request->postParam() && ($arrSkipParams = $container->getConfig('hathoora.logger.webprofiler.skip_on_post_params')))
+            if ($request->postParam() && ($arrSkipParams = $container->getConfig('hathoora.logger.webprofiler.skip_on_post_params')) && is_array($arrSkipParams))
             {
                 foreach ($arrSkipParams as $param)
                 {
@@ -42,7 +42,7 @@ namespace hathoora\logger\webprofiler
             }
 
             // skip webprofiler for specified GET params
-            if ($request->getParam() && ($arrSkipParams = $container->getConfig('hathoora.logger.webprofiler.skip_on_get_params')))
+            if ($request->getParam() && ($arrSkipParams = $container->getConfig('hathoora.logger.webprofiler.skip_on_get_params')) && is_array($arrSkipParams))
             {
                 foreach ($arrSkipParams as $param)
                 {
@@ -52,14 +52,13 @@ namespace hathoora\logger\webprofiler
                     }
                 }
             }
-
             $response = $container->getResponse();
             $contentType = $response->getHeader('Content-Type');
 
             // do we need to display profiler?
             $contentTypeRegexMatched = false;
             $arrContentTypeRegexes = $container->getConfig('hathoora.logger.webprofiler.content_types');
-            if (!$arrContentTypeRegexes)
+            if (!$arrContentTypeRegexes || !is_array($arrContentTypeRegexes))
                 $arrContentTypeRegexes = array('text/html');
 
             foreach($arrContentTypeRegexes as $contentTypeRegex)
@@ -94,6 +93,7 @@ namespace hathoora\logger\webprofiler
 
                     $arrProfile =& profiler::$arrProfile;
                     $arrLog =& logger::$arrLog;
+
                     include_once($template);
                 }
             }

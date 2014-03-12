@@ -91,9 +91,9 @@ class dbMysqli extends \Mysqli implements dbInterface
     /**
      * Commits the query
      */
-    public function commit()
+    public function commit($flags = NULL, $name = NULL)
     {
-        $status = parent::commit();
+        $status = parent::commit($flags = NULL, $name = NULL);
         parent::autocommit(true); // reset
         
         return $status;
@@ -102,9 +102,9 @@ class dbMysqli extends \Mysqli implements dbInterface
     /**
      * Function to rollback
      */
-    public function rollback()
+    public function rollback($flags = NULL, $name = NULL)
     {
-        $rollBack = parent::rollback();
+        $rollBack = parent::rollback($flags = NULL, $name = NULL);
         parent::autocommit(true); // reset
         
         return $rollBack;

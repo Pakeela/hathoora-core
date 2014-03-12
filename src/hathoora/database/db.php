@@ -64,6 +64,11 @@ class db
     protected $comment;
 
     /**
+     * Debugging..
+     */
+    protected $arrDebug = null;
+
+    /**
      * eat up execption and fail silently
      */
     protected $silent;
@@ -255,10 +260,10 @@ class db
                         //echo ": FAILED";
                         $error = $e->getMessage();
                         $arrDsn['status'] = 'cannot connect';
-                        
+
                         logger::log(logger::LEVEL_ERROR, 'mySQL connection error for '. $this->poolName . ($name ? '/'. $name : null) .': '. $error);
                     }
-                    
+
                     //echo "<br/>";
                 }
             }
@@ -331,14 +336,14 @@ class db
     /**
      * silently fail on exception
      */
-    public function silent()
+    public function silent($value)
     {
-        $this->silent = true;
+        $this->silent = $value;
         
         return $this;
     }
-    
-    
+
+
     ##############################################################
     ##
     ##   Factory operations
@@ -349,10 +354,14 @@ class db
      * @param string $queryType write|read to select appropriate factory
      * @param string $comment for debugging
      */
-    private function initialize($queryType, $comment = null)
+    private function initialize($queryType, $comment = null, $initDebug = true)
     {
         $this->setDsnFactory($queryType);
-        $this->initializeDebug($comment = null);
+        if ($initDebug)
+        {
+            $this->queryCounter++;
+            $this->initializeDebug($comment);
+        }
     }
     
     /**
@@ -363,13 +372,19 @@ class db
         // for debugging
         if (config::get('hathoora.logger.profiling.enabled'))
         {
-            $this->arrDebug = array();
-            $this->arrDebug['dsn_name'] = $this->dbName;
-            $this->arrDebug['start'] = microtime();
-            if ($this->comment)
-                $comment = $this->comment;
-            $this->arrDebug['comment'] = $comment;
-        }    
+            if (!is_array($this->arrDebug) || (is_array($this->arrDebug) && $this->arrDebug['queryCounter'] != $this->queryCounter))
+            {
+                $this->arrDebug = array();
+                $this->arrDebug['queryCounter'] = $this->queryCounter;
+                $this->arrDebug['dsn_name'] = $this->dbName;
+                $this->arrDebug['start'] = microtime();
+
+                if ($comment)
+                    $this->comment = $comment;
+
+                $this->arrDebug['comment'] =$this->comment ;
+            }
+        }
     }
 
     /**
@@ -384,11 +399,9 @@ class db
      * @return bool when returnStatus = true, then returns true when no errors, false when errors
      */
     private function finalize($returnStatus = false)
-    {   
+    {
         $return = true;
-        // reset dsn & comment so we pick per query bases
-        $this->userSpecifiedDsn = $this->comment = null;
-        
+
         if (is_object($this->factory))
             $this->error = $this->factory->getError();
         else if (!is_array($this->error))
@@ -397,32 +410,38 @@ class db
                                     'number' => -1,
                                     'message' => 'Unable to connect.');
         }
-        
         $hasError = false;
         if (isset($this->error['number']))
             $hasError = true;
-        
-        if (config::get('hathoora.logger.profiling.enabled') && ($this->query || !empty($this->arrDebug['comment'])))
+
+        if (config::get('hathoora.logger.profiling.enabled') &&
+                ( ($this->query || !empty($this->comment)) || (is_array($this->error) && $this->error['number'] == -1) )
+           )
         {
             $this->arrDebug['end_query'] = microtime();
             $this->arrDebug['query'] = $this->query;
-            
-            if (!$this->arrDebug['query'] && !empty($this->arrDebug['comment']))
-                $this->arrDebug['query'] = $this->arrDebug['comment'];
-            
+
+            if (!$this->arrDebug['query'] && !empty($this->comment))
+                $this->arrDebug['query'] = $this->comment;
+
             if ($hasError)
                 $this->arrDebug['error'] = $this->error['message'];
-                
+
+            $this->arrDebug['comment'] = $this->comment;
+
             profiler::profile('db', $this->poolName . $this->queryCounter, $this->arrDebug);
         }
 
+        // reset dsn & comment so we pick per query bases
+        $this->userSpecifiedDsn = $this->comment = $this->arrDebug = $this->query = null;
         $this->rowCount = $this->lastInsertId = null;
+
         if (is_object($this->factory))
         {
             $this->rowCount = $this->factory->getAffectedRows();
             $this->lastInsertId = $this->factory->getlastInsertId();
         }
-        
+
         if ($hasError)
         {
             $this->errorfactory();
@@ -433,8 +452,7 @@ class db
                 $return = false;
                 
         }
-        $this->silent = false;
-        
+
         return true;
     }
     
@@ -484,6 +502,7 @@ class db
         {
             $args = $match;
             $objEscapeFactory = $factory;
+
             return;
         }
         
@@ -493,6 +512,7 @@ class db
             {
                 if (is_array($args))
                     return $objEscapeFactory->escape(array_shift($args));
+
                 return '?';
             }
         }
@@ -508,35 +528,43 @@ class db
      */
     public function query($query, $args = null, $isMultiQuery = false)
     {
-        $this->queryArgs = $args;
-        
-        if (preg_match('/^s{0,}SELECT/im', $query))
-            $queryType = 'read';
-        else
-            $queryType = 'write';
-        
-        if (empty($this->onConnectExecuting))
-            $this->initialize($queryType);
+        if (is_string($query))
+        {
+            $this->queryArgs = $args;
 
-        if (is_array($args) && count($args))
-        {
-            $this->queryArgsReplace($args, $this);
-            $query = preg_replace_callback(self::DB_QUERY_REGEXP, '\hathoora\database\db::queryArgsReplace', $query);
-        }
-        $this->query = $query;
-        $this->queryCounter++;
-        
-        // log it
-        logger::log(logger::LEVEL_INFO, $query);
-        
-        if (is_object($this->factory))
-        {
-            if (!$isMultiQuery)
-                $this->queryResult = $this->factory->query($query);
+            if (preg_match('/^s{0,}SELECT/im', $query))
+                $queryType = 'read';
             else
-                $this->queryResult = $this->factory->multiQuery($query);
+                $queryType = 'write';
+
+            if (empty($this->onConnectExecuting))
+                $this->initialize($queryType);
+
+            if (is_array($args) && count($args))
+            {
+                $this->queryArgsReplace($args, $this);
+                $query = preg_replace_callback(self::DB_QUERY_REGEXP, '\hathoora\database\db::queryArgsReplace', $query);
+            }
+            $this->query = $query;
+
+            // log it
+            logger::log(logger::LEVEL_INFO, $query);
+
+            if (is_object($this->factory))
+            {
+                if (!$isMultiQuery)
+                    $this->queryResult = $this->factory->query($query);
+                else
+                    $this->queryResult = $this->factory->multiQuery($query);
+            }
         }
-            
+        else
+        {
+            $this->error = array(
+                                    'number' => -1,
+                                    'message' => 'Incorrect format for query.');
+        }
+
         $hasNoErrors = $this->finalize(false);
         if ($hasNoErrors)
             return new dbResult($this->factory, $this->queryResult);
@@ -577,13 +605,16 @@ class db
     public function escape($string)
     {
         $escapedString = null;
-        $this->initialize('read');
+        $this->initialize('read', null, false);
         
         if (is_object($this->factory))
-            $escapedString = $this->factory->quote($string);
-            
-        $this->finalize(false);
-        
+        {
+            if (is_string($string) || is_integer($string))
+                $escapedString = $this->factory->quote($string);
+            else
+                $escapedString = $string;
+        }
+
         return $escapedString;
     }
     
@@ -593,7 +624,7 @@ class db
     public function beginTransaction()
     {
         $this->initialize('write', 'BEGIN TRANSACTION');
-        
+
         if (is_object($this->factory))
             $this->factory->beginTransaction();
             
@@ -607,10 +638,10 @@ class db
     {
         $dbResponse = null;
         $this->initialize('write', 'COMMIT');
-        
+
         if (is_object($this->factory))
             $dbResponse = $this->factory->commit();
-            
+
         $this->finalize();
         
         return $dbResponse;
@@ -626,7 +657,7 @@ class db
         
         if (is_object($this->factory))
             $dbResponse = $this->factory->rollback();
-            
+
         $this->finalize();
         
         return $dbResponse;            

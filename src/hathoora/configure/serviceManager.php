@@ -136,7 +136,7 @@ class serviceManager
                             $service = call_user_func_array(array(
                                     $service,
                                     $factory_method),
-                                $factory_method_args);
+                                    $factory_method_args);
                         }
                     }
 
@@ -218,12 +218,13 @@ class serviceManager
      */
     private static function getParamsValue($str)
     {
+        $isStr = is_string($str);
         // it is a service which has a format of @service@
-        if (substr($str, 0, 1) == '@')
+        if ($isStr && substr($str, 0, 1) == '@')
             $val = registry::getService(substr($str, 1, -1));
         // its a config which has format of %config.name%
-        else if (substr($str, 0, 1) == '%')
-            $val = registry::getConfig(substr($str, 1, -1));
+        else if ($isStr && substr($str, 0, 1) == '%')
+            $val = self::getParamsValue(registry::getConfig(substr($str, 1, -1)));
         else
             $val =& $str;
 
@@ -244,12 +245,13 @@ class serviceManager
         // translation service?
         if (registry::getConfig('hathoora.translation.enabled'))
         {
-            logger::log(logger::LEVEL_DEBUG, 'Service "translator" has been added because of <i>hathoora.translation.enabled</i>.');
-            registry::setConfig('services.translator', array(
+            logger::log(logger::LEVEL_DEBUG, 'Service "translation" has been added because of <i>hathoora.translation.enabled</i>.');
+            registry::setConfig('services.translation', array(
                 'class' => '\hathoora\translation\translator',
-                'method' => 't',
+                'type' => 'static',
                 'calls' => array(
-                    'setContainer' => array('@container@'))));
+                    'setTKConfig' => array('%hathoora.translation%'),
+                    'setCacheService' => array('%hathoora.translation.cache_service%'))));
         }
 
         // translation service?

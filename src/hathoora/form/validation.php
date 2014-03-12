@@ -16,7 +16,7 @@ class validation
      * @param arr $matchAgainst usually the user submitted form against whom we are checking, can also be an object
      * @return mixed returns true when no errors, returns an array on errors when has errors
      */
-    public static function validate($arrValidations, &$matchAgainst, $doTrim = true, $useTranslator = false)
+    public static function validate($arrValidations, &$matchAgainst, $doTrim = true, $usetranslation = false)
     {
         $arrErrors = array();
 
@@ -120,13 +120,13 @@ class validation
                             if (isset($arrRuleSet['message']))
                             {
                                 $ruleSetError = $arrRuleSet['message'];
-                                if ($useTranslator && container::hasService('translator'))
-                                    $ruleSetError =  container::getService('translator', array($ruleSetError, array('field' => $field)));
+                                if ($usetranslation && container::hasService('translation'))
+                                    $ruleSetError =  container::getService('translation', array($ruleSetError, array('field' => $field)));
                             }
                             else
                             {
-                                if ($useTranslator && container::hasService('translator'))
-                                    $arrErrors[$field] =  container::getService('translator', array('validation_field_value_empty', array('field' => $field)));
+                                if ($usetranslation && container::hasService('translation'))
+                                    $arrErrors[$field] =  container::getService('translation', array('validation_field_value_empty', array('field' => $field)));
                                 else
                                     $ruleSetError = container::getConfig('hathoora.validation.messages.validation_field_value_empty');
                             }
@@ -174,8 +174,8 @@ class validation
                                     {
                                         $ruleSetError = $arrRuleSet['message'];
 
-                                        if ($useTranslator && container::hasService('translator'))
-                                            $ruleSetError =  container::getService('translator', array($ruleSetError, array('field' => $field)));
+                                        if ($usetranslation && container::hasService('translation'))
+                                            $ruleSetError =  container::getService('translation', array($ruleSetError, array('field' => $field)));
                                     }
                                 }
                             }
@@ -188,8 +188,8 @@ class validation
                                 $arrErrors[$field] =  $ruleSetError;
                             else
                             {
-                                if ($useTranslator && container::hasService('translator'))
-                                    $arrErrors[$field] =  container::getService('translator', array($ruleSetError, array('field' => $field)));
+                                if ($usetranslation && container::hasService('translation'))
+                                    $arrErrors[$field] =  container::getService('translation', array($ruleSetError, array('field' => $field)));
                                 else
                                     container::getConfig('hathoora.validation.messages.validation_field_general_error');
                             }
@@ -201,8 +201,8 @@ class validation
         else
         {
             // consider error
-            if ($useTranslator && container::hasService('translator'))
-                $arrErrors = array(container::getService('translator', array('validation_empty_form_submitted_error')));
+            if ($usetranslation && container::hasService('translation'))
+                $arrErrors = array(container::getService('translation', array('validation_empty_form_submitted_error')));
             else
                 $arrErrors = array(container::getConfig('hathoora.validation.messages.validation_empty_form_submitted_error'));
         }
