@@ -103,6 +103,16 @@ namespace hathoora
         {
             $arrListeners = config::get('listeners');
 
+            // redirect intercept
+            if (config::get('hathoora.logger.webprofiler.show_redirects'))
+            {
+                $arrListeners['kernel.response']['webprofiler'] = array(
+                                                                            'class' => '\hathoora\logger\webprofiler\webprofiler',
+                                                                            'method' => 'redirectIntercept');
+
+                logger::log(logger::LEVEL_DEBUG, 'Listener "kernel.response[webprofiler]" has been added because of <i>hathoora.logger.webprofiler.show_redirects</i>');
+            }
+
             // add webprofiler listener
             if (config::get('hathoora.logger.webprofiler.enabled'))
             {
@@ -110,7 +120,7 @@ namespace hathoora
                                                                             'class' => '\hathoora\logger\webprofiler\webprofiler',
                                                                             'method' => 'display');
 
-                logger::log(logger::LEVEL_DEBUG, 'Listener "kernel.terminate[webprofiler]" has been added because <i>hathoora.logger.webprofiler</i> is enabled.');
+                logger::log(logger::LEVEL_DEBUG, 'Listener "kernel.terminate[webprofiler]" has been added because of <i>hathoora.logger.webprofiler.enabled</i>');
             }
 
             if (is_array($arrListeners))

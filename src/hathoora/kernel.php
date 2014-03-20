@@ -276,3 +276,32 @@ namespace hathoora
         }
     }
 }
+
+// global scope
+namespace {
+    /**
+     * Print_r shortcut
+     * @param $var
+     * @param bool $die
+     */
+    function printr($var, $die = false)
+    {
+        echo '<pre>'. print_r($var, true) .'</pre>';
+
+        if ($die)
+            die($die);
+    }
+
+    /**
+     * var_dump shortcut
+     * @param $var
+     * @param bool $die
+     */
+    function vardump($var, $die = false)
+    {
+        echo '<pre>';var_dump($var);echo '</pre>';
+
+        if ($die)
+            die($die);
+    }
+}

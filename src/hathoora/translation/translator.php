@@ -268,7 +268,10 @@ namespace hathoora\translation
 
             $query = '
                 SELECT
-                    *
+                    tk.*,
+                    tv.language,
+                    tv.translation,
+                    tr.route
                 FROM translation_key tk
                 INNER JOIN translation_value tv ON (tk.translation_id = tv.translation_id)
                 LEFT JOIN translation_route tr ON (tk.translation_id = tr.translation_id)

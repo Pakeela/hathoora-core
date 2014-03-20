@@ -51,6 +51,30 @@ class response
     }
 
     /**
+     * Get content
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * Get conten's length
+     */
+    public function getContentLength()
+    {
+        return strlen($this->content);
+    }
+
+    /**
+     * Return redirect URL
+     */
+    public function getRedirectURL()
+    {
+        return $this->redirectURL;
+    }
+
+    /**
      * render response and send it to client
      */
     public function render()
@@ -293,5 +317,13 @@ class response
         }
 
         return false;
+    }
+
+    /**
+     * Get headers
+     */
+    public function getHeaders()
+    {
+        return $this->arrHeaders;
     }
 }

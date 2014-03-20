@@ -2,7 +2,10 @@
 
 $arrHttpStatusColor = array(
     '200' => '#176A17',
-    '404' => '#FF0000'
+    '404' => '#FF0000',
+    '302' => '#888',
+    '302' => '#888',
+    '500' => 'red',
 );
 ?>
 
@@ -274,7 +277,6 @@ $arrHttpStatusColor = array(
         <div class="hathoora_section_table_wrapper">
             <div style="padding-left:10px; padding-bottom:5px;">
                 <b>hathoora.logger.logging.enabled:</b> <?php echo $loggingStatus; ?><br/>
-                <b>hathoora.logger.webprofiler.content_types:</b> <?php print_r($arrContentTypeRegexes); ?> <br/>
             </div>
             <div style="text-align:center" class="hathoora_section_table">
                 <table>

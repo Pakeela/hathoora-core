@@ -201,33 +201,38 @@ class request
      * @param string $domain
      * @return bool
      */
-    public function cookieParam($name, $value = null, $expiry = 31536000, $path = '/', $domain = false)
+    public function cookieParam($name = null, $value = null, $expiry = 31536000, $path = '/', $domain = false)
     {
-        $retval = false;
-
-        // only return $name's value
-        if (!isset($value))
-            $retval = (isset($this->cookieData[$name]) ? $this->cookieData[$name] : false);
-        // set cookie
-        else
+        if ($name)
         {
-            if (!headers_sent())
+            $retval = false;
+
+            // only return $name's value
+            if (!isset($value))
+                $retval = (isset($this->cookieData[$name]) ? $this->cookieData[$name] : false);
+            // set cookie
+            else
             {
-                if ($domain === false)
-                    $domain = $this->serverParam('HTTP_HOST');
+                if (!headers_sent())
+                {
+                    if ($domain === false)
+                        $domain = $this->serverParam('HTTP_HOST');
 
-                if ($expiry === -1)
-                    $expiry = 1893456000; // Lifetime = 2030-01-01 00:00:00
-                elseif (is_numeric($expiry))
-                    $expiry += time();
+                    if ($expiry === -1)
+                        $expiry = 1893456000; // Lifetime = 2030-01-01 00:00:00
+                    elseif (is_numeric($expiry))
+                        $expiry += time();
 
-                $retval = @setcookie($name, $value, $expiry, $path, $domain);
-                if ($retval)
-                    $this->cookieData[$name] = $value;
+                    $retval = @setcookie($name, $value, $expiry, $path, $domain);
+                    if ($retval)
+                        $this->cookieData[$name] = $value;
+                }
             }
-        }
 
-        return $retval;
+            return $retval;
+        }
+        else
+            return $this->cookieData;
     }
 
     /**

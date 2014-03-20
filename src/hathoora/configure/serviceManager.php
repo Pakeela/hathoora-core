@@ -26,6 +26,12 @@ class serviceManager
      */
     public static function get($key, $arrService, $methodParams = array())
     {
+        #echo "<b>$key</b>";
+
+        #echo '<pre>';
+        #print_r($arrService);
+        #echo '</pre>';
+
         $error = false;
         $service = $classCacheHash = $reachable = null;
 
