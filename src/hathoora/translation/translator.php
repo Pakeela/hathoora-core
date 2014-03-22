@@ -15,12 +15,34 @@ namespace hathoora\translation
         /**
          * private cache time
          */
-        private $cache_time = 86400;
+        private $cacheTime = 86400;
+
+        /**
+         * Show empty tks
+         * @var bool
+         */
+        private $showEmptyTks = true;
 
         /**
          * @var array of supported languages
          */
         private $arrLanguages = array();
+
+        /**
+         * default language
+         */
+        private $defaultLanguage;
+
+        /**
+         * language selected by user
+         */
+        private $translationLanguage;
+
+        /**
+         * For debugging
+         * @var
+         */
+        private $debugSettings;
 
         /**
          * @var \hathoora\database\db
@@ -45,7 +67,19 @@ namespace hathoora\translation
 
                 // set cache time
                 if (!empty($arrHathooraTKConfig['cache_time']))
-                    $this->cache_time = $arrHathooraTKConfig['cache_time'];
+                    $this->cacheTime = $arrHathooraTKConfig['cache_time'];
+
+                // set cache time
+                if (isset($arrHathooraTKConfig['show_empty']))
+                    $this->showEmptyTks = $arrHathooraTKConfig['show_empty'];
+
+                if (isset($arrHathooraTKConfig['default_language']))
+                    $this->defaultLanguage = $arrHathooraTKConfig['default_language'];
+                else
+                    $this->defaultLanguage = 'en_US';
+
+                if (isset($arrHathooraTKConfig['debug']))
+                    $this->debugSettings = $arrHathooraTKConfig['debug'];
 
                 // array of supported languages
                 if (isset($arrHathooraTKConfig['languages']) && is_array($arrHathooraTKConfig['languages']))
@@ -53,6 +87,7 @@ namespace hathoora\translation
             }
 
             $this->db = $this->getDBConnection($dsn);
+            $this->setTranslationLanguage($this->getRequest()->sessionParam('language'));
         }
 
         /**
@@ -61,6 +96,55 @@ namespace hathoora\translation
         public function getLanguages()
         {
             return $this->arrLanguages;
+        }
+
+        /**
+         * Returns default language when none is selected by user
+         * @return mixed
+         */
+        public function getDefaultLanguage()
+        {
+            return $this->defaultLanguage;
+        }
+
+        /**
+         * Returns user's selected language if any, otherwise default language
+         */
+        public function getTranslationLanguage()
+        {
+            $lang = $this->getDefaultLanguage();
+            if ($this->translationLanguage)
+                $lang = $this->translationLanguage;
+
+            return $lang;
+        }
+
+        /**
+         * Set translation language
+         */
+        public function setTranslationLanguage($lang)
+        {
+            $this->translationLanguage = $lang;
+        }
+
+        /**
+         * Returns true when we are in tk debugging
+         */
+        private function isTkDebug()
+        {
+            $status = false;
+            if (is_array($this->debugSettings) && isset($this->debugSettings['method']) && isset($this->debugSettings['parameter']))
+            {
+                $method = strtolower($this->debugSettings['method']);
+                $parameter = $this->debugSettings['parameter'];
+
+                if ($method == 'get')
+                    $status = $this->getRequest()->getParam($parameter);
+                else if ($method == 'header')
+                    $status = $this->getRequest()->serverParam('HTTP_' . strtoupper($parameter));
+            }
+
+            return $status;
         }
 
         /**
@@ -113,32 +197,45 @@ namespace hathoora\translation
         }
 
         /**
-         * Translation function
+         * Translate a translation key
+         *
+         * @param $tk
+         * @param null $arrToken
+         * @param null $lang
+         * @param bool $reSeed
+         * @return null|string
          */
         public function t($tk, $arrToken = null, $lang = null, $reSeed = false)
         {
+            if ($this->isTkDebug())
+                return $tk;
+
             $tk = trim($tk);
-            $translation = $cacheKey = null;
+            $isEmptyTk = $translation = $cacheKey = $translationDB =  null;
             $cacheService = $this->getCacheService();
-            $prefLang = $this->getRequest()->sessionParam('language');
-            $lang =  $prefLang ? $prefLang : 'en_US';
+            if (is_null($lang))
+                $lang =  $this->getTranslationLanguage();
 
             if ($cacheService)
             {
                 $cacheKey = $this->getTranslationCacheKey($tk, $lang);
-                $translation = $cacheService->get($cacheKey);
+                if (!$reSeed)
+                {
+                    $translationDB = $cacheService->get($cacheKey);
+                    if (is_array($translationDB) && isset($translationDB['translation']))
+                        $translation = $translationDB['translation'];
+                }
             }
 
-            if (is_null($translation) || $reSeed == true)
+            if ((is_null($translation) && !is_array($translationDB)) || $reSeed == true)
             {
-                $translationDB = null;
                 try
                 {
                     if ($reSeed && $cacheKey)
                         $this->db->comment('Reseeding translation cache for ' . $cacheKey);
 
-                    $translationDB = $this->db->fetchValue(
-                                   'SELECT translation
+                    $translationDB = $this->db->fetchArray(
+                                   'SELECT translation, tk.translation_id
                                     FROM translation_key tk
                                     INNER JOIN translation_value tv ON (tk.translation_id = tv.translation_id)
                                     WHERE
@@ -150,19 +247,35 @@ namespace hathoora\translation
                 {
                 }
 
-                if ($translationDB)
-                    $translation = $translationDB;
+                if (is_array($translationDB) && isset($translationDB['translation']))
+                    $translation = $translationDB['translation'];
+                // create a fake array so we can cache it and don't have to make db calls
                 else
-                    $translation = $tk;
+                    $translationDB = array('translation_id' => 0);
 
                 // cache it
                 if ($cacheService)
-                    $cacheService->set($cacheKey, $translation, $this->cache_time);
+                    $cacheService->set($cacheKey, $translationDB, $this->cacheTime);
             }
 
             if (is_null($translation))
+            {
                 $translation = $tk;
+                $isEmptyTk = true;
+            }
 
+            // show empty tks
+            if (
+                    // considered empty tk
+                    $isEmptyTk &&
+                    !$this->showEmptyTks &&
+                    is_array($translationDB) && isset($translationDB['translation_id'])
+            )
+            {
+                $translation = '';
+            }
+
+            // detokenize
             $translation = $this->deTokenize($translation, $arrToken);
 
             return $translation;
@@ -172,8 +285,8 @@ namespace hathoora\translation
          * Functions returns an array of route translations
          *
          * @param string $route name
-         * @param array $arrTokens
-         *      This is an array of array of tokens for individual translation keys e.g.
+         * @param array $arrTranslationkeys
+         *      This is an array of array of keys which contains array of tokens for individual translation keys e.g.
          *      array(
          *              item_1 => array(
          *                                  token_1 => value_1,
@@ -182,25 +295,32 @@ namespace hathoora\translation
          *                                  token_3 => value_3))
          *
          *      In this example item_1 would be using token_1 & token_2
-         * @bool $reSeed to recache
+         * @param null $lang
+         * @param bool $reSeed
+         * @param string $lang
+         * @return array|null
          */
-        public function getRouteTranslations($route, $arrTokens = null, $reSeed = false)
+        public function getRouteTranslations($route, $arrTranslationkeys = null, $lang = null, $reSeed = false)
         {
             $route = trim($route);
-            $arrTranslations = $cacheKey = null;
+            $arrTranslations = $cacheKey = $translationsDB = null;
             $cacheService = $this->getCacheService();
-            $prefLang = $this->getRequest()->sessionParam('language');
-            $lang =  $prefLang ? $prefLang : 'en_US';
+            if (is_null($lang))
+                $lang =  $this->getTranslationLanguage();
 
             if ($cacheService)
             {
                 $cacheKey = $this->getRouteCacheKey($route, $lang);
-                $arrTranslations = $cacheService->get($cacheKey);
+                if (!$reSeed)
+                {
+                    $translationsDB = $cacheService->get($cacheKey);
+                    if (is_array($translationsDB) && isset($translationsDB['translation_keys']))
+                        $arrTranslations = $translationsDB['translation_keys'];
+                }
             }
 
-            if (is_null($arrTranslations) || $reSeed == true)
+            if ((is_null($arrTranslations) && !is_array($translationsDB)) || $reSeed == true)
             {
-                $translationsDB = null;
                 try
                 {
                     if ($reSeed && $cacheKey)
@@ -219,7 +339,7 @@ namespace hathoora\translation
                         $translationsDB = array();
                         while ($row = $stmt->fetchArray())
                         {
-                            $translationsDB[$row['translation_key']] = $row['translation'];
+                            $translationsDB['translation_keys'][$row['translation_key']] = $row['translation'];
                         }
                     }
                 }
@@ -227,25 +347,31 @@ namespace hathoora\translation
                 {
                 }
 
-                if ($translationsDB && is_array($translationsDB))
-                {
-                    $arrTranslations = $translationsDB;
+                // create a fake array so we can cache empty results
+                if (!is_array($translationsDB))
+                    $translationsDB = array('translation_keys' => array());
 
-                    // cache it
-                    if ($cacheService)
-                        $cacheService->set($cacheKey, $arrTranslations, $this->cache_time);
-                }
+                $arrTranslations = $translationsDB['translation_keys'];
+
+                // cache it
+                if ($cacheService)
+                    $cacheService->set($cacheKey, $translationsDB, $this->cacheTime);
             }
 
+            // debugging?
+            if ($this->isTkDebug())
+                return $arrTranslations;
+
             // do we need to replace any tokens?
-            if (is_array($arrTokens) && is_array($arrTranslations) && count($arrTranslations))
+            if (is_array($arrTranslationkeys))
             {
-                foreach($arrTokens as $tk => $arrTkTokens)
+                $foundDbTks = is_array($arrTranslations);
+                foreach($arrTranslationkeys as $tk => $arrTkTokens)
                 {
-                    if (isset($arrTranslations[$tk]))
-                    {
+                    if ($foundDbTks && isset($arrTranslations[$tk]))
                         $arrTranslations[$tk] = $this->deTokenize($arrTranslations[$tk], $arrTkTokens);
-                    }
+                    else if ($this->showEmptyTks)
+                        $arrTranslations[$tk] = $this->deTokenize($tk, $arrTkTokens);
                 }
             }
 
