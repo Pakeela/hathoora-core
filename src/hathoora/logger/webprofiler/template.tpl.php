@@ -383,7 +383,17 @@ $arrHttpStatusColor = array(
                                                     <td class="n">'. number_format(round(\hathoora\logger\profiler::microtimeDiff(HATHOORA_PROFILE_START_TIME, $start) * 1000, 3), 3) .'</td>
                                                     <td>'. $_arrProfile['poolName'] .'</td>
                                                     <td>'. $_arrProfile['method'] .'</td>
-                                                    <td>'. $_arrProfile['name'] .'</td>
+                                                    <td>'. $_arrProfile['name'];
+                                                    
+                                if (isset($_arrProfile['data']))
+                                {
+                                    echo '<div style="font-size:85%; margin-top:8px;" onclick="$(this).find(\'div\').toggle();"><span style="cursor:pointer;">-Show Data-</span> <div style="display:none; color:#BCBCBC;">';
+                                    printr($_arrProfile['data']);
+                                    
+                                    echo '</div></div>';
+                                }
+                                    
+                                echo'               </td>
                                                     <td style="padding-right:10px;">'. $_arrProfile['status'] .'</td>
                                                     <td class="n">'. $took .'</td>
                                                 </tr>';

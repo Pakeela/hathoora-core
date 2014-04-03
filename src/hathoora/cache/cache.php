@@ -129,7 +129,7 @@ class cache
         }
 
         $return = null;
-        if ($this->factory)
+        if ($this->factory && $this->factory->canCache())
             $return = call_user_func_array(array($this->factory, $name), $args);
         $status = ($return && !is_null($return)) ? 1 : 0;
 
@@ -138,8 +138,17 @@ class cache
             $arrDebug['status'] = $status;
             $arrDebug['end'] = microtime();
 
+            
+            if ($this->container->getConfig('hathoora.cache.pools.' . $this->poolName.'.debug'))
+            {
+                $arrDebug['data'] = array(
+                    'args' => $args,
+                    'result' => $return
+                );
+            }
             profiler::profile('cache', $i, $arrDebug);
         }
+        
         // logging
         logger::log(logger::LEVEL_INFO, 'CACHE (pool = '. $this->poolName .') ' . $name .': '. $arrDebug['name'] .', status: '. $status);
 

@@ -31,7 +31,7 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function __construct($arrConfig)
     {
-        if (is_array($arrConfig['servers']) && $this->canCache())
+        if (is_array($arrConfig['servers']))
         {
             $arrServers = array();
            
@@ -56,7 +56,7 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function canCache()
     {
-        return true;
+        return true;//parent::isConnected();
     }
  
     /**
@@ -69,9 +69,6 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function set($key, $data, $expire = 86400, $arrExtra = array())
     {
-        if (!$this->canCache())
-            return false;
-        
         $setRetVal = parent::set($key, (is_array($data) ? serialize($data) : $data));
        
         if (($expire <= time()) && (parent::exists($key)))
@@ -87,9 +84,6 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function get($key)
     {
-        if (!$this->canCache())
-            return false;
-       
         $rawValue = parent::get($key);
         $unserializedValue = @unserialize($rawValue);  
        
@@ -104,9 +98,6 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function delete($key)
     {
-        if (!$this->canCache())
-            return false;
- 
         if (is_array($key))
             call_user_func(__NAMESPACE__ . 'parent::del', $key);
         else
@@ -118,7 +109,7 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function increment($key, $value = 1)
     {
-        if ((!$this->canCache()) || ($value < 1))
+        if ($value < 1)
             return false;
  
         if ($value == 1)
@@ -132,7 +123,7 @@ class cacheRedis extends Predis\Client implements cacheInterface
      */
     public function decrement($key, $value = 1)
     {
-        if ((!$this->canCache()) || ($value < 1))
+        if ($value < 1)
             return false;
  
         if ($value == 1)

@@ -27,7 +27,7 @@ class cacheMemcache extends \Memcache implements cacheInterface
      */
     public function __construct($arrConfig)
     {
-        if (is_array($arrConfig['servers']) && $this->canCache())
+        if (is_array($arrConfig['servers']))
         {
             foreach($arrConfig['servers'] as $i => $arrServer)
             {
@@ -65,9 +65,6 @@ class cacheMemcache extends \Memcache implements cacheInterface
      */
     public function set($key, $data, $expire, $arrExtra = array())
     {
-        if (!$this->canCache())
-            return false;
-       
         $flag = false;
         if (isset($arrExtra['flag']))
             $flag = $arrExtra['flag'];
@@ -81,9 +78,6 @@ class cacheMemcache extends \Memcache implements cacheInterface
      */
     public function get($key)
     {
-        if (!$this->canCache())
-            return false;
-           
         $return = @parent::get($key);
         
         if (!$return)
@@ -97,9 +91,6 @@ class cacheMemcache extends \Memcache implements cacheInterface
      */
     public function delete($key)
     {
-        if (!$this->canCache())
-            return false;
- 
         return parent::delete($key);
     }
  
@@ -108,9 +99,6 @@ class cacheMemcache extends \Memcache implements cacheInterface
      */
     public function increment($key, $value = 1)
     {
-        if (!$this->canCache())
-            return false;
-
         return parent::increment($key, $value);
     }
  
@@ -119,9 +107,6 @@ class cacheMemcache extends \Memcache implements cacheInterface
     */
     public function decrement($key, $value = 1)
     {
-        if (!$this->canCache())
-            return false;
- 
         return parent::decrement($key, $value);
     }
 }
