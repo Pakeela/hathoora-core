@@ -4,7 +4,8 @@ namespace hathoora\logger\webprofiler
     use hathoora\logger\logger,
         hathoora\logger\profiler,
         hathoora\template\template,
-        hathoora\container;
+        hathoora\container,
+        hathoora\helper\stringHelper;
 
     class webprofiler
     {
@@ -128,7 +129,7 @@ namespace hathoora\logger\webprofiler
             {
                 // kernel
                 $totalMemory = memory_get_peak_usage();
-                $totalMemoryFormatted = $this->formatBytes($totalMemory);
+                $totalMemoryFormatted = stringHelper::formatBytes($totalMemory);
                 $scriptEndTime = microtime();
                 $executionTime = profiler::microtimeDiff(HATHOORA_PROFILE_START_TIME, $scriptEndTime);
                 $version = container::getKernel()->getVersion();
@@ -149,7 +150,7 @@ namespace hathoora\logger\webprofiler
                             @list($key, $val) = @explode(':', $_line);
                             $val = @preg_replace('/[^0-9]/', '', $val);
                             if ($val)
-                                $system['memory'][$key] = $this->formatBytes($val);
+                                $system['memory'][$key] = stringHelper::formatBytes($val);
                         }
                     }
 
@@ -174,18 +175,6 @@ namespace hathoora\logger\webprofiler
 
                 include_once($template);
             }
-        }
-
-        /**
-         * format bytes
-         * @url http://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
-         */
-        private function formatBytes($size, $precision = 2)
-        {
-            $base = log($size) / log(1024);
-            $suffixes = array('', 'k', 'M', 'G', 'T');
-
-            return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
         }
     }
 }

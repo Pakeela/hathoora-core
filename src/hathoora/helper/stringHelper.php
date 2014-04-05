@@ -174,5 +174,17 @@ namespace hathoora\helper
 
             return $str;
         }
+
+        /**
+         * format bytes
+         * @url http://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
+         */
+        public static function formatBytes($size, $precision = 2)
+        {
+            $base = log($size) / log(1024);
+            $suffixes = array('', 'k', 'M', 'G', 'T');
+
+            return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+        }
     }
 }
