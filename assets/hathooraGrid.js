@@ -130,7 +130,6 @@
                             // delete column
                             if ($(thElm).find('.hathooraColumnDel').length)
                             {
-                                /*
                                 delIcon = $(thElm).find('.hathooraColumnDel')
                                     .bind('click', function()
                                     {
@@ -142,7 +141,6 @@
 
                                         return false;
                                     });
-                                */
                             }
 
                             // sorting bind
