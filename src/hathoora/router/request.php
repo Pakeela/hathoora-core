@@ -116,21 +116,27 @@ class request
                     if (!empty($arrApp['dispatcher']) && is_array($arrApp['dispatcher']))
                         $appHasDispatcher = $arrApp['dispatcher'];
 
+                    $appNamespace = '\\'. $app;
+
                     // add app to namespace and rememver 'autoloader' was already included in front end controller
                     if ($directory)
                     {
-                        $appNamespace = '\\'. $app;
                         $path = HATHOORA_ROOTPATH . 'app/' . $directory .'/';
                         $appDirectoryPath = $path . $app . '/';
                     }
                     else
                     {
-                        $appNamespace = '\\'. $app;
                         $path = HATHOORA_ROOTPATH . 'app/';
                         $appDirectoryPath = $path . $app . '/';
                     }
-
-                    \hathoora\autoload::register($app, $path);
+                    
+                    if (!empty($arrApp['namespace']))
+                    {
+                        $appNamespace = '\\' . $arrApp['namespace'];
+                        \hathoora\autoload::register($arrApp['namespace'], HATHOORA_ROOTPATH . 'app/');
+                    }
+                    else
+                        \hathoora\autoload::register($app, $path);
                 }
 
 
