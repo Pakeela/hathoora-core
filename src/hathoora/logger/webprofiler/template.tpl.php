@@ -39,7 +39,7 @@ $arrHttpStatusColor = array(
     ?>
 
     <div class="hathoora_logo">
-        <img src="/_assets/_hathoora/hathoora_logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
+        <img src="/_assets/_hathoora/logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
         <?php echo HATHOORA_ENV; ?>
     </div>
 
