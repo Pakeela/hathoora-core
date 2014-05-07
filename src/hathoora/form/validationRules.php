@@ -31,6 +31,15 @@ class validationRules
     }
 
     /**
+     * Returns true if input if valid email
+     * @url http://phpcentral.com/208-url-validation-in-php.html
+     */
+    public static function email($input)
+    {
+        return filter_var($input, FILTER_VALIDATE_EMAIL);
+    }
+
+    /**
      *
      */
     public static function min($input, $v)

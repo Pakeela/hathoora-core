@@ -19,6 +19,9 @@ class validation
     public static function validate($arrValidations, &$matchAgainst, $doTrim = true, $usetranslation = false)
     {
         $arrErrors = array();
+        $tkService = null;
+        if ($usetranslation && container::hasService('translation'))
+            $tkService = container::getService('translation');
 
         if (is_array($matchAgainst))
             $arrForm =& $matchAgainst;
@@ -45,10 +48,11 @@ class validation
                             $arrForm[$field] = $_returnValue;
                     }
         
-                    // update arrForm
+                    // update arrForm after filters
                     if (is_object($matchAgainst) && is_subclass_of($matchAgainst, '\hathoora\model\modelSAR'))
                         $arrForm = $matchAgainst->getSARFields(false, true); // include empty & non object properties
                 }
+                
                 
                 // lets make sure that required fields are present in $arrForm
                 if (!empty($arrField['required']) && $arrField['required'] == true && (!isset($arrForm[$field]) || mb_strlen($arrForm[$field]) < 1))
@@ -87,7 +91,9 @@ class validation
                 $arrValidation =& $arrValidations[$field];
                 
                 // mark all fields as required by default
-                $required = isset($arrValidation['required']) ? : false;
+                $required = true;
+                if (isset($arrValidation['required']))
+                    $required = $arrValidation['required'];
                 
                 $hasValidationRules = isset($arrValidation['rules']) && is_array($arrValidation['rules']);
                 
@@ -120,13 +126,13 @@ class validation
                             if (isset($arrRuleSet['message']))
                             {
                                 $ruleSetError = $arrRuleSet['message'];
-                                if ($usetranslation && container::hasService('translation'))
-                                    $ruleSetError =  container::getService('translation', array($ruleSetError, array('field' => $field)));
+                                if ($tkService)
+                                    $ruleSetError =  $tkService->t($ruleSetError, array('field' => $field));
                             }
                             else
                             {
-                                if ($usetranslation && container::hasService('translation'))
-                                    $arrErrors[$field] =  container::getService('translation', array('validation_field_value_empty', array('field' => $field)));
+                                if ($tkService)
+                                    $arrErrors[$field] =  $tkService->t('validation_field_value_empty', array('field' => $field));
                                 else
                                     $ruleSetError = container::getConfig('hathoora.validation.messages.validation_field_value_empty');
                             }
@@ -174,8 +180,8 @@ class validation
                                     {
                                         $ruleSetError = $arrRuleSet['message'];
 
-                                        if ($usetranslation && container::hasService('translation'))
-                                            $ruleSetError =  container::getService('translation', array($ruleSetError, array('field' => $field)));
+                                        if ($tkService)
+                                            $ruleSetError =  $tkService->t($ruleSetError, array('field' => $field));
                                     }
                                 }
                             }
@@ -188,8 +194,8 @@ class validation
                                 $arrErrors[$field] =  $ruleSetError;
                             else
                             {
-                                if ($usetranslation && container::hasService('translation'))
-                                    $arrErrors[$field] =  container::getService('translation', array($ruleSetError, array('field' => $field)));
+                                if ($tkService)
+                                    $arrErrors[$field] =  $tkService->t($ruleSetError, array('field' => $field));
                                 else
                                     container::getConfig('hathoora.validation.messages.validation_field_general_error');
                             }
@@ -201,8 +207,8 @@ class validation
         else
         {
             // consider error
-            if ($usetranslation && container::hasService('translation'))
-                $arrErrors = array(container::getService('translation', array('validation_empty_form_submitted_error')));
+            if ($tkService)
+                $arrErrors = array($tkService->t('validation_empty_form_submitted_error'));
             else
                 $arrErrors = array(container::getConfig('hathoora.validation.messages.validation_empty_form_submitted_error'));
         }
