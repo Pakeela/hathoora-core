@@ -27,7 +27,12 @@ class validation
             $arrForm =& $matchAgainst;
         // when it is an object and subclass of modelSAR
         else if (is_object($matchAgainst) && is_subclass_of($matchAgainst, '\hathoora\model\modelSAR'))
-            $arrForm = $matchAgainst->getSARFields(false, true); // include empty & non object properties
+        {
+            /**
+             * @var $matchedAgainst \hathoora\model\modelSAR
+             */
+            $arrForm = $matchAgainst->getSARFields(true, true); // include empty & non object properties
+        }
         else
             $arrForm = array();
 
@@ -50,7 +55,7 @@ class validation
         
                     // update arrForm after filters
                     if (is_object($matchAgainst) && is_subclass_of($matchAgainst, '\hathoora\model\modelSAR'))
-                        $arrForm = $matchAgainst->getSARFields(false, true); // include empty & non object properties
+                        $arrForm = $matchAgainst->getSARFields(true, true); // include empty & non object properties
                 }
                 
                 
@@ -59,7 +64,7 @@ class validation
                     $arrForm[$field] = '';
             }
         }
-        
+
         // now loop over the form array for validation
         if (is_array($arrForm))
         {
@@ -89,9 +94,10 @@ class validation
                 
                 // validation array
                 $arrValidation =& $arrValidations[$field];
-                
-                // mark all fields as required by default
-                $required = true;
+
+
+                // mark all fields as not required by default
+                $required = false;
                 if (isset($arrValidation['required']))
                     $required = $arrValidation['required'];
                 
@@ -113,10 +119,15 @@ class validation
                 // validation rules
                 if ($hasValidationRules)
                 {
+                    $ruleHasError = false;
+
                     foreach ($arrValidation['rules'] as $arrRuleSet)
                     {
                         $ruleSetHasError = false;
                         $ruleSetError = null;
+
+                        if ($ruleHasError)
+                            break;
                         
                         // empty value?
                         if ($inputSrtLen == 0)
@@ -145,12 +156,12 @@ class validation
                             {
                                 // if already has error then skip
                                 if ($ruleSetHasError)
-                                    continue;
-                                    
+                                    break;
+
                                 // skip message
                                 if ($rule == 'message')
                                     continue;
-                                
+
                                 $ruleHasNoError = true; // no errors by default
                                 
                                 // if $rule_v is strickly bool, then we don't pass them to validate function
@@ -190,6 +201,7 @@ class validation
                         // has errors but no error emssage
                         if ($ruleSetHasError)
                         {
+                            $ruleHasError = true;
                             if ($ruleSetError)
                                 $arrErrors[$field] =  $ruleSetError;
                             else

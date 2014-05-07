@@ -144,17 +144,9 @@ class modelSAR extends container
                 if (isset($arrEntityFields[$rProperty]))
                     unset($arrEntityFields[$rProperty]);
             }
-
-            if (is_array($arrEntityFields))
-            {
-                foreach($arrEntityFields as $field => $arrField)
-                {
-                    if (!is_array($arrEntityFields[$field]) && !mb_strlen($arrEntityFields[$field]) && $dontExcludeEmptyProperties == true)
-                        unset($arrEntityFields[$field]);
-                }
-            }
         }
-        else if (is_array($arrFields))
+
+        if (is_array($arrFields))
         {
             foreach ($arrFields as $field => $arrField)
             {
