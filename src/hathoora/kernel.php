@@ -246,7 +246,7 @@ namespace hathoora
             // kernel response ready and about to be sent out
             $this->addKernelEvent('response');
 
-            if (!headers_sent())
+            if (!headers_sent() && !container::getConfig('hathoora.logger.webprofiler.show_redirects_render'))
                 $this->response->send();
             else if (php_sapi_name() == 'cli')
                 $this->response->send();

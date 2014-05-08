@@ -13,7 +13,7 @@ class model extends container
      * 
      * @param string $dsn_name defined in the config
      * @param bool $reBuild when true 
-     * @return hathoora\database\db class
+     * @return \hathoora\database\db class
      */
     final public static function getDBConnection($dsn_name = 'default', $reBuild = false)
     {
