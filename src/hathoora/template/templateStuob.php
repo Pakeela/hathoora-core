@@ -150,11 +150,12 @@ class templateStuob extends container implements templateInterface
     public function __load($file, $vars = array())
     {
         if (realpath($file))
-            $path = $file;
+            $path______nooverwrite = $file;
         else
-            $path = $this->template_dir . $file;
+            $path______nooverwrite = $this->template_dir . $file;
 
-        if (file_exists($path))
+        $file______nooverwrite = $file;
+        if (file_exists($path______nooverwrite))
         {
             $this->var['this'] =& $this;
             if (is_array($this->var))
@@ -172,8 +173,8 @@ class templateStuob extends container implements templateInterface
             if (is_array($controller->_tpl_vars))
                 extract($controller->_tpl_vars, EXTR_OVERWRITE);
 
-            logger::log(logger::LEVEL_INFO, 'Template ('. $file .') loaded');
-            include($path);
+            logger::log(logger::LEVEL_INFO, 'Template ('. $file______nooverwrite .') loaded');
+            include($path______nooverwrite);
         }
         else
             logger::log(logger::LEVEL_ERROR, 'Template ('. $file .') is not found.');
