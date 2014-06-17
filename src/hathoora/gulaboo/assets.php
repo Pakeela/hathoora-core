@@ -45,6 +45,9 @@ class assets extends container
         $url .= '/_assets/_app/' . $appPathHash;
         $url .=  $path . '?' . $this->getConfig('hathoora.gulaboo.assets.version');
 
+        if ($this->getConfig('hathoora.gulaboo.assets.debug'))
+            $url .= time();
+
         return $url;
     }
 
@@ -52,6 +55,9 @@ class assets extends container
     {
         $url = $this->getConfig('hathoora.gulaboo.assets.urls.http');
         $url .=  $path . '?' . $this->getConfig('hathoora.gulaboo.assets.version');
+
+        if ($this->getConfig('hathoora.gulaboo.assets.debug'))
+            $url .= time();
 
         return $url;
     }
