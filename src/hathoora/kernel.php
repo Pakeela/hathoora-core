@@ -183,7 +183,8 @@ namespace hathoora
             $this->observer->addEventListenersFromConfig();
 
             // start session - @todo handle session start differently
-            @session_start();
+            if (!session_id())
+                session_start();
 
             // fire kernel.ready event
             $this->addKernelEvent('ready');
