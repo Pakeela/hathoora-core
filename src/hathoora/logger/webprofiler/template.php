@@ -2,16 +2,18 @@
 
 $arrHttpStatusColor = array(
     '200' => '#176A17',
-    '404' => '#FF0000'
+    '404' => '#FF0000',
+    '302' => '#888',
+    '302' => '#888',
+    '500' => 'red',
 );
 ?>
 
-<link rel="stylesheet" type="text/css" href="/_assets/_hathoora/webprofiler/webprofiler.css?<?php echo $version; ?>" media="screen" />
-<script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>');</script>
-<script>window.jQuery || document.write('<script src="/_assets/_hathoora/webprofiler/jquery-1.8.3.min.js"><\/script>')</script>
-<script type="text/javascript" src="/_assets/_hathoora/webprofiler/webprofiler.js?<?php echo $version; ?>"></script>
-
 <div id="hathoora_debug">
+    <link rel="stylesheet" type="text/css" href="/_assets/_hathoora/webprofiler/webprofiler.css?<?php echo $version; ?>" media="screen" />
+    <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>');</script>
+    <script>window.jQuery || document.write('<script src="/_assets/_hathoora/webprofiler/jquery-1.8.3.min.js"><\/script>')</script>
+    <script type="text/javascript" src="/_assets/_hathoora/webprofiler/webprofiler.js?<?php echo $version; ?>"></script>
     <div class="hathoora_summary">
         <b>Page Took:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo number_format(round($executionTime * 1000, 2), 2); ?> msec<br/>
         <b>Page Memory:</b> &nbsp;&nbsp;<?php echo $totalMemoryFormatted; ?>
@@ -36,7 +38,7 @@ $arrHttpStatusColor = array(
     ?>
 
     <div class="hathoora_logo">
-        <img src="/_assets/_hathoora/hathoora_logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
+        <img src="/_assets/_hathoora/logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
         <?php echo HATHOORA_ENV; ?>
     </div>
 
@@ -381,7 +383,17 @@ $arrHttpStatusColor = array(
                                                     <td class="n">'. number_format(round(\hathoora\logger\profiler::microtimeDiff(HATHOORA_PROFILE_START_TIME, $start) * 1000, 3), 3) .'</td>
                                                     <td>'. $_arrProfile['poolName'] .'</td>
                                                     <td>'. $_arrProfile['method'] .'</td>
-                                                    <td>'. $_arrProfile['name'] .'</td>
+                                                    <td>'. $_arrProfile['name'];
+                                                    
+                                                    if (isset($_arrProfile['data']))
+                                                    {
+                                                        echo '<div style="font-size:85%; margin-top:8px;" onclick="$(this).find(\'div\').toggle();"><span style="cursor:pointer;">-Show Data-</span> <div style="display:none; color:#BCBCBC;">';
+                                                        printr($_arrProfile['data']);
+
+                                                        echo '</div></div>';
+                                                    }
+                                    
+                                echo'               </td>
                                                     <td style="padding-right:10px;">'. $_arrProfile['status'] .'</td>
                                                     <td class="n">'. $took .'</td>
                                                 </tr>';
