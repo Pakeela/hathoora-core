@@ -133,7 +133,7 @@ class request
                     if (!empty($arrApp['namespace']))
                     {
                         $appNamespace = '\\' . $arrApp['namespace'];
-                        \hathoora\autoload::register($arrApp['namespace'], HATHOORA_ROOTPATH . 'app/');
+                        \hathoora\autoload::register($arrApp['namespace'], array(HATHOORA_ROOTPATH . 'app/', $path));
                     }
                     else
                         \hathoora\autoload::register($app, $path);
