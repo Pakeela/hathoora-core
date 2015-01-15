@@ -426,6 +426,7 @@ class templateStuob extends container implements templateInterface
      */
     public function block($name, $return = false)
     {
+        $html = null;
         $name = '__block_'. $name;
         if (isset($this->blocks[$name]))
             $html = $this->blocks[$name];
