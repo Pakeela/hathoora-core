@@ -424,11 +424,16 @@ class templateStuob extends container implements templateInterface
      * @param string $name of block
      * @url: https://github.com/Xeoncross/PHP-Template/blob/master/Template.php
      */
-    public function block($name)
+    public function block($name, $return = false)
     {
         $name = '__block_'. $name;
         if (isset($this->blocks[$name]))
-            echo $this->blocks[$name];
+            $html = $this->blocks[$name];
+
+        if (!$return)
+            echo $html;
+        else
+            return $html;
     }
 
     /**

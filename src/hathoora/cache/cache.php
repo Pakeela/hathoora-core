@@ -138,7 +138,7 @@ class cache
             $arrDebug['status'] = $status;
             $arrDebug['end'] = microtime();
 
-            
+
             if ($this->container->getConfig('hathoora.cache.pools.' . $this->poolName.'.debug'))
             {
                 $arrDebug['data'] = array(

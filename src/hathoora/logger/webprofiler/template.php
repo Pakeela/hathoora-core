@@ -38,7 +38,7 @@ $arrHttpStatusColor = array(
     ?>
 
     <div class="hathoora_logo">
-        <img src="/_assets/_hathoora/logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
+        <img src="/_assets/_hathoora/hathoora_logo.png?<?php echo $version;?>" title="Hathoora <?php echo $version;?>" align="absmiddle"/>
         <?php echo HATHOORA_ENV; ?>
     </div>
 
@@ -384,7 +384,7 @@ $arrHttpStatusColor = array(
                                                     <td>'. $_arrProfile['poolName'] .'</td>
                                                     <td>'. $_arrProfile['method'] .'</td>
                                                     <td>'. $_arrProfile['name'];
-                                                    
+
                                                     if (isset($_arrProfile['data']))
                                                     {
                                                         echo '<div style="font-size:85%; margin-top:8px;" onclick="$(this).find(\'div\').toggle();"><span style="cursor:pointer;">-Show Data-</span> <div style="display:none; color:#BCBCBC;">';
@@ -392,7 +392,7 @@ $arrHttpStatusColor = array(
 
                                                         echo '</div></div>';
                                                     }
-                                    
+
                                 echo'               </td>
                                                     <td style="padding-right:10px;">'. $_arrProfile['status'] .'</td>
                                                     <td class="n">'. $took .'</td>

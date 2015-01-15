@@ -13,6 +13,17 @@ namespace hathoora\helper
     class stringDetokenizerFilters
     {
         /**
+         * Trims value
+         *
+         * @param $str
+         * @return string
+         */
+        public static function trim($tokenValue)
+        {
+            return trim($tokenValue);
+        }
+
+        /**
          * Call custom filters
          *
          * @param $name
@@ -21,34 +32,19 @@ namespace hathoora\helper
         public static function __callStatic($name, $args)
         {
             $tokenValue = $args[0];
-            $foundFilter = null;
-            
-            // check if is a valid callback to begin with
-            if (function_exists($name))
-            {
-                $tokenValue = call_user_func_array($name, $args);
-                $foundFilter = true;            
-            }
 
             // get list of available filters
-            if (!$foundFilter && ($arrFilterClasses = container::getConfig('hathoora.detokenizerFilters')) && is_array($arrFilterClasses))
+            if (($arrFilterClasses = container::getConfig('hathoora.detokenizerFilters')) && is_array($arrFilterClasses))
             {
                 foreach($arrFilterClasses as $filterClass)
                 {
-                    if ($foundFilter)
-                        break;
-                        
                     if (is_callable(array($filterClass, $name)))
-                    {
                         $tokenValue = call_user_func_array(array($filterClass, $name), $args);
-                        $foundFilter = true;
-                    }
+                    // filter not found
+                    else
+                        logger::log(logger::LEVEL_WARNING, 'Detokenize: unable to apply filter: <i>' . $name . '</i>');
                 }
             }
-            
-            // filter not found
-            if (!$foundFilter)
-                logger::log(logger::LEVEL_WARNING, 'Detokenize: unable to apply filter: <i>' . $name . '</i>');
 
             return $tokenValue;
         }

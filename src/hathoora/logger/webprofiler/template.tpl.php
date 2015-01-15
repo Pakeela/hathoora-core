@@ -9,12 +9,11 @@ $arrHttpStatusColor = array(
 );
 ?>
 
-<link rel="stylesheet" type="text/css" href="/_assets/_hathoora/webprofiler/webprofiler.css?<?php echo $version; ?>" media="screen" />
-<script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>');</script>
-<script>window.jQuery || document.write('<script src="/_assets/_hathoora/webprofiler/jquery-1.8.3.min.js"><\/script>')</script>
-<script type="text/javascript" src="/_assets/_hathoora/webprofiler/webprofiler.js?<?php echo $version; ?>"></script>
-
 <div id="hathoora_debug">
+    <link rel="stylesheet" type="text/css" href="/_assets/_hathoora/webprofiler/webprofiler.css?<?php echo $version; ?>" media="screen" />
+    <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"><\/script>');</script>
+    <script>window.jQuery || document.write('<script src="/_assets/_hathoora/webprofiler/jquery-1.8.3.min.js"><\/script>')</script>
+    <script type="text/javascript" src="/_assets/_hathoora/webprofiler/webprofiler.js?<?php echo $version; ?>"></script>
     <div class="hathoora_summary">
         <b>Page Took:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo number_format(round($executionTime * 1000, 2), 2); ?> msec<br/>
         <b>Page Memory:</b> &nbsp;&nbsp;<?php echo $totalMemoryFormatted; ?>

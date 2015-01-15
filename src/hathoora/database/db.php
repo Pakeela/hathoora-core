@@ -593,7 +593,7 @@ class db
                     }
                     $result->close();
                 }
-            } while($this->factory->next_result());
+            } while($this->factory->more_results() && $this->factory->next_result());
         }
         
         return $arrResult;
