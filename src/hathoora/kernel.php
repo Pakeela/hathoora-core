@@ -97,11 +97,10 @@ namespace hathoora
             if (!defined('HATHOORA_PROFILE_START_TIME'))
                 define('HATHOORA_PROFILE_START_TIME', microtime());
 
-            define('HATHOORA_ENV', $env);
             define('HATHOORA_PATH', __DIR__ . '/');
             define('HATHOORA_UUID', uniqid('', true));
 
-            $this->bootstrap();
+            $this->bootstrap($env);
         }
 
         /**
@@ -129,7 +128,7 @@ namespace hathoora
          *
          * @returns kernel object
          */
-        public function bootstrap()
+        public function bootstrap($env)
         {
             // change error handlers
             #$errorHandler = new errorHandler();
@@ -142,10 +141,12 @@ namespace hathoora
             // need to figure out app to load appropriate config files
             if ($sapi == 'cli')
             {
-                if (!empty($_SERVER['argv']) && isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == '-r' &&
-                    isset($_SERVER['argv'][2]))
+                if (!empty($_SERVER['argv']) && isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == '-e' &&
+                    isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '-r' &&
+                    isset($_SERVER['argv'][4]))
                 {
-                    $url = $_SERVER['argv'][2];
+                    $env = $_SERVER['argv'][2];
+                    $url = $_SERVER['argv'][4];
                     $arrUrl = parse_url($url);
 
                     // set $_SERVER to make things work..
@@ -158,8 +159,11 @@ namespace hathoora
                         parse_str($_SERVER['QUERY_STRING'], $_GET);
                 }
                 else
-                    die('Invalid command line, format is index.php -r http://www.example.com/controller/method/param1?var1=1' . "\n");
+                    die('Invalid command line, format is index.php -e ENV -r http://www.example.com/controller/method/param1?var1=1' . "\n");
             }
+
+            define('HATHOORA_ENV', $env);
+
 
             $this->routeRequest = new routeRequest();
             $app = $this->routeRequest->getApp();

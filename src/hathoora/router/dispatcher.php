@@ -47,7 +47,7 @@ class dispatcher
     {
         // take multi apps in consideration and figure out root URI only when app != site
         $adjustedURI = $this->routeURI;
-        $arrPossibleRoute = false;
+        $arrPossibleRoute = $controllerFolder = false;
 
         // Hathoora routing override in .htacces
         if (count($this->htRO))
@@ -89,6 +89,7 @@ class dispatcher
 
             if (is_array($arrPossibleRoute))
             {
+                $controllerFolder = !empty($arrPossibleRoute['folder']) ? $arrPossibleRoute['folder'] : null;
                 $controller = !empty($arrPossibleRoute['controller']) ? $arrPossibleRoute['controller'] : null;
                 $action = !empty($arrPossibleRoute['action']) ? $this->getActionName($arrPossibleRoute['action']) : null;
                 $arrParams = !empty($arrPossibleRoute['params']) ? $arrPossibleRoute['params'] : array();
@@ -139,6 +140,7 @@ class dispatcher
         }
 
         // assign locally
+        $this->controllerFolder = $controllerFolder; // used mostly for customAppDispatcher
         $this->controller = $controller;
         $this->action = $action;
         $this->params = $arrParams;

@@ -28,7 +28,8 @@ class base
         $this->controller = $dispatcher->controller;
         $this->action = $dispatcher->action;
         $this->params = $dispatcher->params;
-        $this->controllerNameSpaceClass = $this->getControllerNameSpaceClass($this->controller);
+        $this->controllerFolder = $dispatcher->controllerFolder;
+        $this->controllerNameSpaceClass = $this->getControllerNameSpaceClass($this->controller, $this->controllerFolder);
         $this->isCRUD = $dispatcher->isCRUD;
     }
 
@@ -121,8 +122,11 @@ class base
      *
      * @param string $controller
      */
-    public function getControllerNameSpaceClass($controller)
+    public function getControllerNameSpaceClass($controller, $folder = '')
     {
-        return $this->appNamespace .'\controller\\' . $controller;
+        if ($folder)
+            $folder = $folder . '\\';
+
+        return $this->appNamespace .'\controller\\' . $folder . $controller;
     }
 }
