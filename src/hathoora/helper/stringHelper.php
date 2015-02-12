@@ -74,7 +74,7 @@ namespace hathoora\helper
          */
         public static function XOREncryption($string, $keyPhrase)
         {
-
+            $string = (string) $string;
             $KeyPhraseLength = strlen($keyPhrase);
 
             // Loop trough input string

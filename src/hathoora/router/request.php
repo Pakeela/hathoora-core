@@ -111,7 +111,7 @@ class request
                     $regex = !empty($arrApp['pattern']) ? $arrApp['pattern'] : null;
                     $directory = !empty($arrApp['directory']) ? $arrApp['directory'] : null;
                     if (!empty($arrApp['default']))
-                        $regex = '([a-z0-9\-]+\.)*[a-z0-9]+\.[a-z]+';
+                        $regex = '[^/]*';
 
                     if (!empty($arrApp['dispatcher']) && is_array($arrApp['dispatcher']))
                         $appHasDispatcher = $arrApp['dispatcher'];
