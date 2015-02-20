@@ -4,7 +4,7 @@ $arrHttpStatusColor = array(
     '200' => '#176A17',
     '404' => '#FF0000',
     '302' => '#888',
-    '302' => '#888',
+    '301' => '#888',
     '500' => 'red',
 );
 ?>
@@ -43,7 +43,7 @@ $arrHttpStatusColor = array(
     </div>
 
     <div class="hathoora_route" section="route">
-        <div class="hathoora_section_toggle"><?php echo HATHOORA_APP . '<span style="color:#975301;"> / </span>' . $controller->getControllerName() . '<span style="color:#975301;"> / </span>' . $controller->getControllerActionName() . ' (<span style="color:' . $arrHttpStatusColor[$httpStatus] .';">'. $httpStatus .'</span>)'?></div>
+        <div class="hathoora_section_toggle"><?php echo HATHOORA_APP . '<span style="color:#975301;"> / </span>' . $controller->getControllerName() . '<span style="color:#975301;"> / </span>' . $controller->getControllerActionName() . ' (<span style="color:' . (isset($arrHttpStatusColor[$httpStatus]) ? $arrHttpStatusColor[$httpStatus] : '#888') .';">'. $httpStatus .'</span>)'?></div>
         <div class="hathoora_section_table_wrapper hathoora_section_tabs">
             <div style="float:right; margin-right:30px;"><b>Request UUID:</b> <?php echo HATHOORA_UUID; ?> </div>
             <div class="hathoora_section_tab" tab="get">Get</div>
