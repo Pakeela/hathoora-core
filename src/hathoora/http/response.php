@@ -266,7 +266,7 @@ class response
      *
      * @param array $arrHeaders
      */
-    private function setHeaders($arrHeaders)
+    public function setHeaders($arrHeaders)
     {
         if (is_array($arrHeaders))
         {

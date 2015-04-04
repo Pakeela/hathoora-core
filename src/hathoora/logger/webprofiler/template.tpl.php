@@ -581,7 +581,11 @@ $arrHttpStatusColor = array(
 
                                 foreach($_arrOrder as $_orderName => $_orderV)
                                 {
-                                    echo '<td>'. $_arrProfile[$_orderName] .'</td>';
+                                     $__v = $_arrProfile[$_orderName];
+                                    if (is_array($__v) || is_object($__v))
+                                    $__v = '<pre>' . print_r($__v, true) .'</pre>';
+
+                                    echo '<td>'. $__v .'</td>';
                                 }
                                 echo '
                                                     <td class="n">'. $time .'</td>

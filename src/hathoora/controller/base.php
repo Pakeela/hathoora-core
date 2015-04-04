@@ -102,6 +102,14 @@ class base
     }
 
     /**
+     * Returns current controller's folder name
+     */
+    public function getControllerFolderName()
+    {
+        return $this->controllerFolder;
+    }
+
+    /**
      * Returns current method
      */
     public function getControllerActionName()
