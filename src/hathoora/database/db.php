@@ -453,7 +453,7 @@ class db
                 
         }
 
-        return true;
+        return $return;
     }
     
     /**
