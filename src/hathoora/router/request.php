@@ -137,6 +137,11 @@ class request
                     }
                     else
                         \hathoora\autoload::register($app, $path);
+
+
+                    $arrApps[$app]['appNamespace'] = $appNamespace;
+                    $arrApps[$app]['appDirectoryPath'] = $appDirectoryPath;
+                    $arrApps[$app]['appHasDispatcher'] = $appHasDispatcher;
                 }
 
 
@@ -153,6 +158,8 @@ class request
                     $this->baseURS = str_replace($this->routeURI, '', $this->baseURS);
                 }
             }
+
+            $this->routeConfig->set('app', $arrApps);
         }
 
         return $this->app;
@@ -197,6 +204,26 @@ class request
             $path = $this->appDirectoryPath;
 
         return $path;
+    }
+
+    /**
+     * @param null $app
+     *
+     * @return null|string
+     */
+    public function getAppNamespace($app = null)
+    {
+        if ($app)
+        {
+            $arrApps = $this->routeConfig->get('app');
+
+            if (isset($arrApps[$app]) && ($arrApp = $arrApps[$app]) && !empty($arrApp['appNamespace']))
+                $namespace = $arrApp['appNamespace'];
+        }
+        else
+            $namespace = $this->appNamespace;
+
+        return $namespace;
     }
 
     /**
